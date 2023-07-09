@@ -1,6 +1,8 @@
+[![Gem Version](https://badge.fury.io/rb/xml2json-rb.svg)](https://badge.fury.io/rb/xml2json-rb)
 # Xml2Json
 
-A tiny Ruby wrapper for the Rust [xml2json](https://github.com/novcn/xml2json-rs) lib
+A tiny Ruby wrapper for the Rust [xml2json](https://github.com/novcn/xml2json-rs) lib which allows
+to convert xml strings to json and vise versa.
 
 ## Installation
 
@@ -12,9 +14,19 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
     $ gem install xml2json-rb
 
-## Usage
+## Usage example
 
-TODO: Write usage instructions here
+```ruby
+require "xml2json"
+require "nokogiri"
+
+puts Nokogiri::XML(Xml2Json::Xml.build('{"a": 1, "b": "2"}'))
+# <?xml version="1.0"?>
+#   <root>
+#   <a>1</a>
+#   <b>2</b>
+# </root>
+```
 
 ## Development
 
