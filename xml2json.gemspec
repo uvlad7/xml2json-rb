@@ -3,7 +3,7 @@
 require_relative "lib/xml2json/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "xml2json"
+  spec.name = "xml2json-rb"
   spec.version = Xml2Json::VERSION
   spec.authors = ["uvlad7"]
   spec.email = ["uvlad7@gmail.com"]

@@ -6,11 +6,11 @@ A tiny Ruby wrapper for the Rust [xml2json](https://github.com/novcn/xml2json-rs
 
 Install the gem and add to the application's Gemfile by executing:
 
-    $ bundle add xml2json
+    $ bundle add xml2json-rb --require xml2json
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
-    $ gem install xml2json
+    $ gem install xml2json-rb
 
 ## Usage
 

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    xml2json (0.1.0)
+    xml2json-rb (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -67,7 +67,7 @@ DEPENDENCIES
   rb_sys (~> 0.9.63)
   rspec (~> 3.0)
   rubocop (~> 1.21)
-  xml2json!
+  xml2json-rb!
   yard-rustdoc
 
 BUNDLED WITH
