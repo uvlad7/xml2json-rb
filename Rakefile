@@ -17,4 +17,10 @@ RbSys::ExtensionTask.new("xml2json") do |ext|
   ext.lib_dir = "lib/xml2json"
 end
 
-task default: %i[compile spec rubocop]
+require "yard"
+
+YARD::Rake::YardocTask.new do |t|
+  t.files = ["lib/**/*.rb"]
+end
+
+task default: %i[compile spec rubocop yard]

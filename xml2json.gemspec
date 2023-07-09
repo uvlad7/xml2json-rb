@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   # end
   spec.files = [
     *Dir["ext/**/*"], *Dir["lib/**/*"], *Dir["sig/**/*"],
-    "Cargo.lock", "Cargo.toml",
+    "Cargo.lock", "Cargo.toml"
   ].reject { |f| File.directory?(f) }
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }

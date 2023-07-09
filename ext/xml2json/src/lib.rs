@@ -50,9 +50,10 @@ fn init() -> Result<(), Error> {
     let module = define_module("Xml2Json")?;
     // module.define_singleton_method("hello", function!(hello, 1))?;
     // It's not possible to wrap XmlBuilder
-    let xml = module.define_class("Xml", magnus::class::object())?;
+    let xml = module.define_module("Xml")?;
     xml.define_singleton_method("build", function!(build_xml, 1))?;
-    let json = module.define_class("Json", magnus::class::object())?;
+    // xml.define_class("Config", magnus::class::object())?;
+    let json = module.define_module("Json")?;
     json.define_singleton_method("build", function!(build_json, 1))?;
     Ok(())
 }
