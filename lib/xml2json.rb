@@ -21,6 +21,7 @@ module Xml2Json
   #      # @return [String] XML string
   #      # @raise [RuntimeError] if the input string is invalid
   #      def self.build(json_s, opts: nil); end
+  #      def self.build_pretty(json_s, opts: nil); end
   #    end
   #
   #    module Json
@@ -30,5 +31,6 @@ module Xml2Json
   #      # @return [String] JSON string
   #      # @raise [RuntimeError] if the input string is invalid
   #      def self.build(xml, opts: nil); end
+  #      def self.build_pretty(xml, opts: nil); end
   #    end
 end
