@@ -21,6 +21,14 @@ fn map_xml2json_err(error: xml2json_rs::X2JError) -> Error {
 }
 
 fn build_xml(args: &[Value]) -> Result<String, Error> {
+    build_xml_impl(args, false)
+}
+
+fn build_pretty_xml(args: &[Value]) -> Result<String, Error> {
+    build_xml_impl(args, true)
+}
+
+fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
     let args = scan_args::<_, _, (), (), _, ()>(args)?;
     let (json_s, ): (String, ) = args.required;
     let (opts, ): (Option<magnus::RHash>, ) = args.optional;
@@ -75,18 +83,18 @@ fn build_xml(args: &[Value]) -> Result<String, Error> {
                 if indent_char.is_some() {
                     indent_char_val = u8::try_from(indent_char.unwrap()).map_err(|error| Error::new(magnus::exception::type_error(), error.to_string()))?;
                 } else { indent_char_val = b' '; }
-
-                let intent = Indentation::new(
+                config.rendering(Indentation::new(
                     indent_char_val,
                     indent_size.unwrap_or(2),
-                );
-                config.rendering(intent);
-            } else if indent.unwrap_or(false) {
+                ));
+            } else if indent.unwrap_or(build_pretty) {
                 // because Indentation::default is not the same as not calling config.rendering at all;
                 config.rendering(Indentation::default());
             }
         }
         xml_builder = config.finalize();
+    } else if build_pretty {
+        xml_builder = XmlConfig::new().rendering(Indentation::default()).finalize();
     } else { xml_builder = XmlBuilder::default(); }
 
     xml_builder.build_from_json_string(&json_s).or_else(|error| {
@@ -95,6 +103,14 @@ fn build_xml(args: &[Value]) -> Result<String, Error> {
 }
 
 fn build_json(args: &[Value]) -> Result<String, Error> {
+    build_json_impl(args, false)
+}
+
+fn build_pretty_json(args: &[Value]) -> Result<String, Error> {
+    build_json_impl(args, true)
+}
+
+fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Error> {
     // https://docs.rs/magnus/latest/magnus/scan_args/fn.scan_args.html
     let args = scan_args::<_, _, (), (), _, ()>(args)?;
     let (xml, ): (String, ) = args.required;
@@ -173,9 +189,18 @@ fn build_json(args: &[Value]) -> Result<String, Error> {
         set_arg!(config, opts_hash, explicit_array, bool);
         set_arg!(config, opts_hash, explicit_charkey, bool);
         json_builder = config.finalize();
+
+        let indent = opts_hash.lookup::<_, Option<bool>>(magnus::Symbol::new("indent"))?;
+        if indent.is_some() {
+            build_pretty = indent.unwrap();
+        }
     } else { json_builder = JsonBuilder::default(); }
 
-    json_builder.build_string_from_xml(&xml).or_else(|error| {
+    if build_pretty {
+        json_builder.build_pretty_string_from_xml(&xml)
+    } else {
+        json_builder.build_string_from_xml(&xml)
+    }.or_else(|error| {
         Err(map_xml2json_err(error))
     })
 }
@@ -192,7 +217,9 @@ fn init() -> Result<(), Error> {
     let xml_encoding = xml.define_module("Encoding")?;
     xml_encoding.const_set("UTF8", Encoding::UTF8.to_string())?;
     xml.define_singleton_method("build", function!(build_xml, -1))?;
+    xml.define_singleton_method("build_pretty", function!(build_pretty_xml, -1))?;
     let json = module.define_module("Json")?;
     json.define_singleton_method("build", function!(build_json, -1))?;
+    json.define_singleton_method("build_pretty", function!(build_pretty_json, -1))?;
     Ok(())
 }
