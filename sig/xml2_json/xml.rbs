@@ -1,5 +1,5 @@
 module Xml2Json
   module Xml
-    def self.build: (json_s: String) -> String
+    def self.build: (json_s: String, opts: Hash[Symbol, Object]?) -> String
   end
 end

@@ -1,47 +1,182 @@
-use magnus::{define_module, function, prelude::*, Error};
-use xml2json_rs::{XmlBuilder, JsonBuilder};
+use magnus::{define_module, function, prelude::*, Error, Value};
+use magnus::scan_args::{scan_args};
+use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
 
 // fn hello(subject: String) -> String {
 //     format!("Hello from Rust, {}!", subject)
 // }
 
-// struct RbXmlConfig {
-//     val: XmlConfig,
-// }
+#[macro_export]
+macro_rules! set_arg {
+    ($config:expr, $opts_hash:expr, $arg:ident, $arg_type:ident) => (
+        let arg_value = $opts_hash.lookup::<_, Option<$arg_type>>(magnus::Symbol::new(stringify!($arg)))?;
+        if arg_value.is_some() {
+            $config.$arg(arg_value.unwrap());
+        }
+    );
+}
 
-// impl RbXmlConfig {
-//     fn root_name(&mut self, key: Option<String>) -> &mut RbXmlConfig {
-//         self.val.root_name(key);
-//         self
-//     }
-//
-//     fn build(self, json_s: String) -> Result<String, Error> {
-//         build_xml_impl(json_s, Some(self))
-//     }
-// }
+fn map_xml2json_err(error: xml2json_rs::X2JError) -> Error {
+    Error::new(magnus::exception::runtime_error(), error.details())
+}
 
-// fn build_xml(json_s: String) -> Result<String, Error> {
-//     build_xml_impl(json_s, None)
-// }
+fn build_xml(args: &[Value]) -> Result<String, Error> {
+    let args = scan_args::<_, _, (), (), _, ()>(args)?;
+    let (json_s, ): (String, ) = args.required;
+    let (opts, ): (Option<magnus::RHash>, ) = args.optional;
+    let _: () = args.keywords;
 
-// fn build_xml_impl(json_s: String, config: Option<RbXmlConfig>) -> Result<String, Error> {
-//     let mut xml_builder = config.map_or_else(|| XmlBuilder::default(), |conf| conf.val.finalize());
-//     xml_builder.build_from_json_string(&json_s).or_else(|error| {
-//         Err(Error::new(magnus::exception::arg_error(), error.to_string()))
-//     })
-// }
+    let mut xml_builder: XmlBuilder;
+    if opts.is_some() { // yep, even if it's an empty hash
+        // println!("{}", opts.unwrap().to_string());
+        let opts_hash = opts.unwrap();
+        let mut config = XmlConfig::new();
+        set_arg!(config, opts_hash, root_name, String);
+        set_arg!(config, opts_hash, attrkey, String);
+        set_arg!(config, opts_hash, charkey, String);
 
-fn build_xml(json_s: String) -> Result<String, Error> {
-    let mut xml_builder = XmlBuilder::default();
+        let decl_version = opts_hash.lookup::<_, Option<Value>>(magnus::Symbol::new("version"))?;
+        let decl_encoding = opts_hash.lookup::<_, Option<Value>>(magnus::Symbol::new("encoding"))?;
+        let decl_standalone = opts_hash.lookup::<_, Option<bool>>(magnus::Symbol::new("standalone"))?;
+        if decl_version.is_some()
+            || decl_encoding.is_some()
+            || decl_standalone.is_some()
+        { // something is specified
+            // I didn't find a way to get defaults without copying them
+            let decl_version_val;
+            if decl_version.is_some() {
+                let decl_version_str = unsafe { decl_version.unwrap().to_s() }?.into_owned();
+                decl_version_val = Version::try_from(decl_version_str.as_str())
+                    .map_err(map_xml2json_err)?;
+            } else { decl_version_val = Version::XML10; }
+            let decl_encoding_val;
+            if decl_encoding.is_some() {
+                let decl_encoding_str = unsafe { decl_encoding.unwrap().to_s() }?.into_owned();
+                decl_encoding_val = Some(Encoding::try_from(decl_encoding_str.as_str())
+                    .map_err(map_xml2json_err)?);
+            } else { decl_encoding_val = None; }
+
+            let decl = Declaration::new(
+                decl_version_val,
+                decl_encoding_val,
+                decl_standalone,
+            );
+            config.decl(decl);
+        }
+
+        let indent = opts_hash.lookup::<_, Option<bool>>(magnus::Symbol::new("indent"))?;
+        if indent.unwrap_or(true) {
+            let indent_char = opts_hash.lookup::<_, Option<char>>(magnus::Symbol::new("indent_char"))?;
+            let indent_size = opts_hash.lookup::<_, Option<usize>>(magnus::Symbol::new("indent_size"))?;
+            if indent_char.is_some()
+                || indent_size.is_some()
+            {
+                let indent_char_val: u8;
+                if indent_char.is_some() {
+                    indent_char_val = u8::try_from(indent_char.unwrap()).map_err(|error| Error::new(magnus::exception::type_error(), error.to_string()))?;
+                } else { indent_char_val = b' '; }
+
+                let intent = Indentation::new(
+                    indent_char_val,
+                    indent_size.unwrap_or(2),
+                );
+                config.rendering(intent);
+            } else if indent.unwrap_or(false) {
+                // because Indentation::default is not the same as not calling config.rendering at all;
+                config.rendering(Indentation::default());
+            }
+        }
+        xml_builder = config.finalize();
+    } else { xml_builder = XmlBuilder::default(); }
+
     xml_builder.build_from_json_string(&json_s).or_else(|error| {
-        Err(Error::new(magnus::exception::runtime_error(), error.details()))
+        Err(map_xml2json_err(error))
     })
 }
 
-fn build_json(xml: String) -> Result<String, Error> {
-    let json_builder = JsonBuilder::default();
+fn build_json(args: &[Value]) -> Result<String, Error> {
+    // https://docs.rs/magnus/latest/magnus/scan_args/fn.scan_args.html
+    let args = scan_args::<_, _, (), (), _, ()>(args)?;
+    let (xml, ): (String, ) = args.required;
+    let (opts, ): (Option<magnus::RHash>, ) = args.optional;
+    // let _: () = args.optional;
+    let _: () = args.keywords;
+
+    // Impossible, too long
+    // let kw = get_kwargs::<_, (), (
+    //     Option<String>, // charkey
+    //     Option<String>, // attrkey
+    //     Option<String>, // empty_tag
+    //     Option<bool>, // explicit_root
+    //     Option<bool>, // trim
+    //     Option<bool>, // ignore_attrs
+    //     Option<bool>, // merge_attrs
+    //     Option<bool>, // normalize_text
+    //     Option<bool>, // lowercase_tags
+    //     Option<bool>, // explicit_array
+    //     Option<bool>, // explicit_charkey
+    // ), ()>(args.keywords, &[], &[
+    //     "charkey",
+    //     "attrkey",
+    //     "empty_tag",
+    //     "explicit_root",
+    //     "trim",
+    //     "ignore_attrs",
+    //     "merge_attrs",
+    //     "normalize_text",
+    //     "lowercase_tags",
+    //     "explicit_array",
+    //     "explicit_charkey",
+    // ])?;
+    // let (
+    //     charkey,
+    //     attrkey,
+    //     empty_tag,
+    //     explicit_root,
+    //     trim,
+    //     ignore_attrs,
+    //     merge_attrs,
+    //     normalize_text,
+    //     lowercase_tags,
+    //     explicit_array,
+    //     explicit_charkey,
+    // ) = kw.optional;
+    // if charkey.is_some()
+    //     || attrkey.is_some()
+    //     || empty_tag.is_some()
+    //     || explicit_root.is_some()
+    //     || trim.is_some()
+    //     || ignore_attrs.is_some()
+    //     || merge_attrs.is_some()
+    //     || normalize_text.is_some()
+    //     || lowercase_tags.is_some()
+    //     || explicit_array.is_some()
+    //     || explicit_charkey.is_some()
+    // {
+    //     println!("any")
+    // } else { println!("none") }
+
+    let json_builder: JsonBuilder;
+    if opts.is_some() { // yep, even if it's an empty hash
+        // println!("{}", opts.unwrap().to_string());
+        let opts_hash = opts.unwrap();
+        let mut config = JsonConfig::new();
+        set_arg!(config, opts_hash, charkey, String);
+        set_arg!(config, opts_hash, attrkey, String);
+        set_arg!(config, opts_hash, empty_tag, String);
+        set_arg!(config, opts_hash, explicit_root, bool);
+        set_arg!(config, opts_hash, trim, bool);
+        set_arg!(config, opts_hash, ignore_attrs, bool);
+        set_arg!(config, opts_hash, merge_attrs, bool);
+        set_arg!(config, opts_hash, normalize_text, bool);
+        set_arg!(config, opts_hash, lowercase_tags, bool);
+        set_arg!(config, opts_hash, explicit_array, bool);
+        set_arg!(config, opts_hash, explicit_charkey, bool);
+        json_builder = config.finalize();
+    } else { json_builder = JsonBuilder::default(); }
+
     json_builder.build_string_from_xml(&xml).or_else(|error| {
-        Err(Error::new(magnus::exception::runtime_error(), error.details()))
+        Err(map_xml2json_err(error))
     })
 }
 
@@ -51,9 +186,13 @@ fn init() -> Result<(), Error> {
     // module.define_singleton_method("hello", function!(hello, 1))?;
     // It's not possible to wrap XmlBuilder
     let xml = module.define_module("Xml")?;
-    xml.define_singleton_method("build", function!(build_xml, 1))?;
-    // xml.define_class("Config", magnus::class::object())?;
+    let xml_version = xml.define_module("Version")?;
+    xml_version.const_set("XML10", Version::XML10.to_string())?;
+    xml_version.const_set("XML11", Version::XML11.to_string())?;
+    let xml_encoding = xml.define_module("Encoding")?;
+    xml_encoding.const_set("UTF8", Encoding::UTF8.to_string())?;
+    xml.define_singleton_method("build", function!(build_xml, -1))?;
     let json = module.define_module("Json")?;
-    json.define_singleton_method("build", function!(build_json, 1))?;
+    json.define_singleton_method("build", function!(build_json, -1))?;
     Ok(())
 }

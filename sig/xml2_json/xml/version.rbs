@@ -1,0 +1,8 @@
+module Xml2Json
+  module Xml
+    module Version
+      XML10: String
+      XML11: String
+    end
+  end
+end

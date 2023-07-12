@@ -1,0 +1,7 @@
+module Xml2Json
+  module Xml
+    module Encoding
+      UTF8: String
+    end
+  end
+end
