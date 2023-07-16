@@ -1,0 +1,20 @@
+class Examples
+  JSON_DEFAULT_OPTIONS: Hash[Symbol, String | bool]
+
+  JSON_OPTIONS: Hash[Symbol, Array[String] | Array[bool]]
+
+  JSON_TRANSFORM_KEYS: Hash[Symbol, Symbol]
+
+  @json_task: untyped
+  @xml_task: untyped
+  @xml_input_data: Hash[String, String]
+  @json_input_data: Hash[String, String]
+
+  def to_h: -> Hash[:json | :xml, Array[Hash[:fname | :opts | :result, String | Hash[Symbol, String | bool]]]]
+
+  private
+
+  def option_variations: -> Array[Hash[Symbol, String | bool]]
+
+  def read_data: -> void
+end

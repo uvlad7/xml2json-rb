@@ -50,6 +50,8 @@ Gem::Specification.new do |spec|
   # # Cause I want to use rack adapter with puma server
   spec.add_development_dependency "puma"
 
+  spec.add_development_dependency "node_task"
+
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
 end

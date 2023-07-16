@@ -223,3 +223,8 @@ fn init() -> Result<(), Error> {
     json.define_singleton_method("build_pretty", function!(build_pretty_json, -1))?;
     Ok(())
 }
+
+// Python ideas
+// https://doc.rust-lang.org/reference/conditional-compilation.html
+// https://gist.github.com/alexcrichton/29b618d75cde5b57d797
+// https://users.rust-lang.org/t/ifdef-like-feature/1753/11

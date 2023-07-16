@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "xml2json"
+require "json"
 
 RSpec.describe Xml2Json do
   it "has a version number" do
@@ -73,5 +74,41 @@ RSpec.describe Xml2Json::Json do
         explicit_array: false
       )
     ).to eq '{"book":{"title":"The Name of the Wind","author":"Patrick Rothfuss","year":"2007"}}'
+  end
+end
+
+require_relative "examples"
+
+RSpec.describe Xml2Json do
+  before(:all) do
+    examples = JSON.parse(File.read(File.join(__dir__ || ".", "examples.json")), symbolize_names: true)
+    @xml_examples = examples[:xml]
+    @json_examples = examples[:json]
+    @data = Dir[File.join(__dir__ || ".", "data/*.{xml,json}")].map do |fname|
+      [File.basename(fname), File.read(fname)]
+    end.to_h
+    @known_issues = JSON.parse(File.read(File.join(__dir__ || ".", "known_issues.json")))
+  end
+
+  it "should match node-xml2js examples" do
+    # @json_examples.each do |example|
+    #   fname, options = example.values_at(:fname, :options)
+    #
+    #   result = Xml2Json::Json.build(@data[fname], options)
+    #   # trick to get readable errors
+    #   expect(
+    #     {
+    #       fname: fname,
+    #       options: options,
+    #       result: @known_issues[result] || result
+    #     }
+    #   ).to eq example
+    # end
+    puts [@json_examples.size, @json_examples.count do |example|
+      fname, options = example.values_at(:fname, :options)
+
+      result = Xml2Json::Json.build(@data[fname], options)
+      result == example[:result]
+    end]
   end
 end

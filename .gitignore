@@ -17,3 +17,8 @@ target/
 .rspec_status
 .idea/
 .rake_tasks~
+
+# node subproject
+node_modules/
+ruby_node_task*
+spec/examples.json
