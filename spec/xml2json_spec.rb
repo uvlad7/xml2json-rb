@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
+
 require "xml2json"
 
 RSpec.describe Xml2Json do
@@ -14,12 +16,12 @@ RSpec.describe Xml2Json::Xml do
   end
 
   it "converts json into pretty xml" do
-    expect(Xml2Json::Xml.build_pretty('{"a": 1, "b": ["2"]}')).to eq <<-XML.chomp
-<?xml version="1.0"?>
-<root>
-  <a>1</a>
-  <b>2</b>
-</root>
+    expect(Xml2Json::Xml.build_pretty('{"a": 1, "b": ["2"]}')).to eq <<~XML.chomp
+      <?xml version="1.0"?>
+      <root>
+        <a>1</a>
+        <b>2</b>
+      </root>
     XML
   end
 
@@ -67,17 +69,17 @@ RSpec.describe Xml2Json::Json do
   end
 
   it "converts xml into pretty json" do
-    expect(Xml2Json::Json.build_pretty("<root><a>1</a><b>2</b></root>")).to eq <<-JSON.chomp
-{
-  "root": {
-    "a": [
-      "1"
-    ],
-    "b": [
-      "2"
-    ]
-  }
-}
+    expect(Xml2Json::Json.build_pretty("<root><a>1</a><b>2</b></root>")).to eq <<~JSON.chomp
+      {
+        "root": {
+          "a": [
+            "1"
+          ],
+          "b": [
+            "2"
+          ]
+        }
+      }
     JSON
   end
 
@@ -100,3 +102,4 @@ RSpec.describe Xml2Json::Json do
     ).to eq '{"book":{"title":"The Name of the Wind","author":"Patrick Rothfuss","year":"2007"}}'
   end
 end
+# rubocop:enable Metrics/BlockLength
