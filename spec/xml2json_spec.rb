@@ -13,6 +13,16 @@ RSpec.describe Xml2Json::Xml do
     expect(Xml2Json::Xml.build('{"a": 1, "b": ["2"]}')).to eq "<?xml version=\"1.0\"?><root><a>1</a><b>2</b></root>"
   end
 
+  it "converts json into pretty xml" do
+    expect(Xml2Json::Xml.build_pretty('{"a": 1, "b": ["2"]}')).to eq <<-XML.chomp
+<?xml version="1.0"?>
+<root>
+  <a>1</a>
+  <b>2</b>
+</root>
+    XML
+  end
+
   it "raises on incorrect input" do
     expect { Xml2Json::Xml.build('{"a": 1, ') }.to raise_error(RuntimeError)
     expect { Xml2Json::Xml.build('{"a": 1}', indent_char: "🐈") }.to raise_error(TypeError)
@@ -54,6 +64,21 @@ end
 RSpec.describe Xml2Json::Json do
   it "converts xml to json" do
     expect(Xml2Json::Json.build("<root><a>1</a><b>2</b></root>")).to eq '{"root":{"a":["1"],"b":["2"]}}'
+  end
+
+  it "converts xml into pretty json" do
+    expect(Xml2Json::Json.build_pretty("<root><a>1</a><b>2</b></root>")).to eq <<-JSON.chomp
+{
+  "root": {
+    "a": [
+      "1"
+    ],
+    "b": [
+      "2"
+    ]
+  }
+}
+    JSON
   end
 
   it "raises on incorrect input" do
