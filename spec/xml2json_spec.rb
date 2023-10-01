@@ -68,7 +68,7 @@ RSpec.describe Xml2Json::Json do
     expect(
       Xml2Json::Json.build(
         '<?xml version="1.0"?><book category="fantasy"><title lang="en">The Name of the Wind</title>' \
-         "<author>Patrick Rothfuss</author><year>2007</year></book>",
+        "<author>Patrick Rothfuss</author><year>2007</year></book>",
         ignore_attrs: true,
         explicit_array: false
       )
