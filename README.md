@@ -4,6 +4,32 @@
 A tiny Ruby wrapper for the Rust [xml2json](https://github.com/novcn/xml2json-rs) lib which allows
 to convert xml strings to json and vise versa.
 
+Table of Contents
+-----------------
+
+-   [Prerequisites](#prerequisites)
+-   [Installation](#installation)
+-   [Usage examples](#usage-examples)
+-   [Development](#development)
+-   [Contributing](#contributing)
+-   [Releasing](#releasing)
+-   [License](#license)
+
+## Prerequisites
+
+This gem is written in Rust and currently doesn't have precompiled binary version, so you need to [install](https://doc.rust-lang.org/cargo/getting-started/installation.html) `cargo` to compile it.
+
+> **Warning**  
+This option may dissapear in the future, as `cargo_builder` from `rb_sys` doesn't support it, unlike default `cargo_builder` from `rubygems`, but `rb_sys` is required for cross-compilation
+
+If you have some weird setup with `cargo` named differently, of it's not in your `PATH`, you can pass a command to be evaluated via environment variable `CARGO`, for example:
+
+    $ export CARGO=cargo1_72_1
+
+or simply
+
+    $ CARGO=/path/to/cargo gem install xml2json-rb
+
 ## Installation
 
 Install the gem and add to the application's Gemfile by executing:
@@ -14,19 +40,22 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
     $ gem install xml2json-rb
 
-## Usage example
+## Usage examples
 
 ```ruby
 require "xml2json"
-require "nokogiri"
 
-puts Nokogiri::XML(Xml2Json::Xml.build('{"a": 1, "b": "2"}'))
+puts Xml2Json::Xml.build_pretty('{"a": 1, "b": "2"}')
 # <?xml version="1.0"?>
-#   <root>
+# <root>
 #   <a>1</a>
 #   <b>2</b>
 # </root>
+puts Xml2Json::Json.build("<root><a>1</a><b>2</b></root>", explicit_array: false)
+# {"root":{"a":"1","b":"2"}}
 ```
+
+See [specs](spec/xml2json_spec.rb) for more examples.
 
 ## Development
 
@@ -37,6 +66,10 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/uvlad7/xml2json-rb.
+
+## Releasing
+
+This project uses [Semantic Versioning](https://semver.org/) and adheres to the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) guidelines.
 
 ## License
 
