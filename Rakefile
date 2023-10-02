@@ -23,4 +23,7 @@ YARD::Rake::YardocTask.new do |t|
   t.files = ["lib/**/*.rb"]
 end
 
+require_relative "yard-ghpages/yard-ghpages"
+Yard::GHPages::Tasks.install_tasks
+
 task default: %i[compile spec rubocop yard]
