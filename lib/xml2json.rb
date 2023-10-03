@@ -3,7 +3,7 @@
 require_relative "xml2json/version"
 require_relative "xml2json/xml2json"
 
-# @see https://github.com/novcn/xml2json-rs docs for the wrapped library
+# @see https://docs.rs/xml2json-rs/1.0.1/xml2json_rs/index.html docs for the wrapped library
 module Xml2Json
   # @!parse [ruby]
   #    module Xml
@@ -18,7 +18,7 @@ module Xml2Json
   #      # @param json_s [String, #to_str] JSON string
   #      # @param opts [Hash<Symbol, Object>] config params
   #      # @note Default values are provided by xml2json-rs
-  #      # @see https://docs.rs/xml2json-rs/1.0.1/xml2json_rs/struct.XmlConfig.html rust doc
+  #      # @see https://docs.rs/xml2json-rs/1.0.1/xml2json_rs/struct.XmlConfig.html Docs for xml2json-rs XmlConfig
   #      # @option opts [String, #to_str] root_name ("root") Root key name to contain produced JSON object
   #      # @option opts [String, #to_str] attrkey ("$") The value of the JSON key used to store XML attributes under
   #      # @option opts [String, #to_str] charkey ("_") The value of the JSON key used to store XML character data under
@@ -52,7 +52,7 @@ module Xml2Json
   #      # @param xml [String, #to_str] XML string
   #      # @param opts [Hash<Symbol, Object>] config params
   #      # @note Default values are provided by xml2json-rs
-  #      # @see https://docs.rs/xml2json-rs/1.0.1/xml2json_rs/struct.JsonConfig.html rust doc
+  #      # @see https://docs.rs/xml2json-rs/1.0.1/xml2json_rs/struct.JsonConfig.html Docs for xml2json-rs JsonConfig
   #      # @option opts [String, #to_str] attrkey ("$") Key to outer object containing tag attributes
   #      # @option opts [String, #to_str] charkey ("_") Key to store character content under
   #      # @option opts [String, #to_str] empty_tag ("") The value of empty nodes

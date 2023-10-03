@@ -13,7 +13,7 @@ Table of Contents
 -   [Documentation](#documentation)
 -   [Development](#development)
 -   [Contributing](#contributing)
--   [Releasing](#releasing)
+-   [Releases](#releases)
 -   [License](#license)
 
 ## Prerequisites
@@ -21,7 +21,7 @@ Table of Contents
 This gem is written in Rust and currently doesn't have precompiled binary version, so you need to [install](https://doc.rust-lang.org/cargo/getting-started/installation.html) `cargo` to compile it.
 
 > **Warning**  
-This option may dissapear in the future, as `cargo_builder` from `rb_sys` doesn't support it, unlike default `cargo_builder` from `rubygems`, but `rb_sys` is required for cross-compilation
+It won't work for local development with `rake compile`
 
 If you have some weird setup with `cargo` named differently, of it's not in your `PATH`, you can pass a command to be evaluated via environment variable `CARGO`, for example:
 
@@ -72,7 +72,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 Bug reports and pull requests are welcome [on GitHub](https://github.com/uvlad7/xml2json-rb).
 
-## Releasing
+## Releases
 
 This project uses [Semantic Versioning](https://semver.org/) and adheres to the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) guidelines.
 
