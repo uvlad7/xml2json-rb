@@ -18,7 +18,7 @@ module Yard
       end
 
       def install
-        namespace :yard do
+        namespace :ghpages do
           desc 'Build yard documentation'
           task :build do |t|
             YARD::CLI::Yardoc.run('--output-dir', 'docs')
