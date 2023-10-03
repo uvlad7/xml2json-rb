@@ -10,6 +10,7 @@ Table of Contents
 -   [Prerequisites](#prerequisites)
 -   [Installation](#installation)
 -   [Usage examples](#usage-examples)
+-   [Documentation](#documentation)
 -   [Development](#development)
 -   [Contributing](#contributing)
 -   [Releasing](#releasing)
@@ -57,6 +58,10 @@ puts Xml2Json::Json.build("<root><a>1</a><b>2</b></root>", explicit_array: false
 
 See [specs](spec/xml2json_spec.rb) for more examples.
 
+## Documentation
+
+YARD docs are available on [rubydoc.info](https://rubydoc.info/gems/xml2json-rb/) for the latest released version and on [pages.github.com](https://uvlad7.github.io/xml2json-rb/) for the most recent changes in `master`
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -65,7 +70,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/uvlad7/xml2json-rb.
+Bug reports and pull requests are welcome [on GitHub](https://github.com/uvlad7/xml2json-rb).
 
 ## Releasing
 
