@@ -21,7 +21,7 @@ Table of Contents
 This gem is written in Rust and currently doesn't have precompiled binary version, so you need to [install](https://doc.rust-lang.org/cargo/getting-started/installation.html) `cargo` to compile it.
 
 > **Warning**  
-It won't work for local development with `rake compile`
+This won't work for local development with `rake compile`
 
 If you have some weird setup with `cargo` named differently, of it's not in your `PATH`, you can pass a command to be evaluated via environment variable `CARGO`, for example:
 
