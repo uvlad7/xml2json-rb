@@ -2,6 +2,18 @@ PATH
   remote: .
   specs:
     xml2json-rb (0.3.0)
+      pry
+      pry-byebug
+      puma
+      rack
+      rackup
+      rake (~> 13.0)
+      rake-compiler
+      rb_sys (~> 0.9.63)
+      rspec (~> 3.0)
+      rubocop (~> 1.21)
+      yard
+      yard-rustdoc
 
 GEM
   remote: https://rubygems.org/
@@ -79,19 +91,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  pry
-  pry-byebug
-  puma
-  rack
-  rackup
-  rake (~> 13.0)
-  rake-compiler
-  rb_sys (~> 0.9.63)
-  rspec (~> 3.0)
-  rubocop (~> 1.21)
   xml2json-rb!
-  yard
-  yard-rustdoc
 
 BUNDLED WITH
    2.4.10
