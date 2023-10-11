@@ -1,5 +1,5 @@
 [![Gem Version](https://badge.fury.io/rb/xml2json-rb.svg)](https://badge.fury.io/rb/xml2json-rb)
-[![Testing](https://github.com/uvlad7/xml2json-rb/actions/workflows/main.yml/badge.svg)](https://github.com/uvlad7/xml2json-rb/actions/workflows/main.yml)
+[![Tests](https://github.com/uvlad7/xml2json-rb/actions/workflows/main.yml/badge.svg)](https://github.com/uvlad7/xml2json-rb/actions/workflows/main.yml)
 [![Docs](https://github.com/uvlad7/xml2json-rb/actions/workflows/docs.yml/badge.svg)](https://github.com/uvlad7/xml2json-rb/actions/workflows/docs.yml)
 # Xml2Json
 
