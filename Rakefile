@@ -15,14 +15,17 @@ require "rb_sys/extensiontask"
 
 task build: :compile
 
-RbSys::ExtensionTask.new("xml2json") do |ext|
+gemspec = Gem::Specification.load("xml2json.gemspec")
+
+RbSys::ExtensionTask.new("xml2json", gemspec) do |ext|
   ext.lib_dir = "lib/xml2json"
 end
 
 require "yard"
 
 YARD::Rake::YardocTask.new do |t|
-  t.files = ["lib/**/*.rb"]
+  t.files = gemspec.files.select { |f| File.extname(f) == ".rb" }
+  t.options += ["--output-dir", ENV["YARD_OUTPUT_DIR"]] if ENV["YARD_OUTPUT_DIR"]
 end
 
 task default: %i[compile spec rubocop yard]

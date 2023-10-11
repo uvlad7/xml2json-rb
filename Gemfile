@@ -24,4 +24,3 @@ gem "rack"
 gem "rackup"
 # # Cause I want to use rack adapter with puma server
 gem "puma"
-
