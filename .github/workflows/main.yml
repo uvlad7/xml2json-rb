@@ -16,6 +16,8 @@ jobs:
       matrix:
         ruby:
           - '2.7.8'
+        rust:
+          - "nightly"
 
     steps:
     - uses: actions/checkout@v3
@@ -23,6 +25,7 @@ jobs:
       uses: oxidize-rb/actions/setup-ruby-and-rust@v1
       with:
         ruby-version: ${{ matrix.ruby }}
+        rustup-toolchain: ${{ matrix.rust }}
         bundler-cache: true
         cargo-cache: true
         rubygems: '3.4.14'
