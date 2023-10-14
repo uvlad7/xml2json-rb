@@ -15,8 +15,9 @@ jobs:
           - "2.7.8"
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Ruby & Rust
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}

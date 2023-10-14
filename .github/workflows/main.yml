@@ -6,7 +6,7 @@ on:
       - master
 
   pull_request:
-    types: [opened, reopened]
+    types: [ opened, reopened ]
 
 jobs:
   build:
@@ -20,14 +20,15 @@ jobs:
           - "1.72.1"
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Ruby & Rust
-      uses: oxidize-rb/actions/setup-ruby-and-rust@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        rustup-toolchain: ${{ matrix.rust }}
-        bundler-cache: true
-        cargo-cache: true
-        rubygems: '3.4.14'
-    - name: Run the default task
-      run: bundle exec rake
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Ruby & Rust
+        uses: oxidize-rb/actions/setup-ruby-and-rust@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          rustup-toolchain: ${{ matrix.rust }}
+          bundler-cache: true
+          cargo-cache: true
+          rubygems: '3.4.14'
+      - name: Run the default task
+        run: bundle exec rake
