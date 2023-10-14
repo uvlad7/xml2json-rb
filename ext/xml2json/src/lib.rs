@@ -10,8 +10,8 @@ use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, V
 macro_rules! set_arg {
     ($config:expr, $opts_hash:expr, $arg:ident, $arg_type:ident) => (
         let arg_value = $opts_hash.lookup::<_, Option<$arg_type>>(magnus::Symbol::new(stringify!($arg)))?;
-        if arg_value.is_some() {
-            $config.$arg(arg_value.unwrap());
+        if let Some(value) = arg_value {
+            $config.$arg(value);
         }
     );
 }
@@ -29,15 +29,13 @@ fn build_pretty_xml(args: &[Value]) -> Result<String, Error> {
 }
 
 fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
-    let args = scan_args::<_, _, (), (), _, ()>(args)?;
+    let args = scan_args::<_, _, (), (), (), ()>(args)?;
     let (json_s, ): (String, ) = args.required;
     let (opts, ): (Option<magnus::RHash>, ) = args.optional;
-    let _: () = args.keywords;
 
     let mut xml_builder: XmlBuilder;
-    if opts.is_some() { // yep, even if it's an empty hash
+    if let Some(opts_hash) = opts { // yep, even if it's an empty hash
         // println!("{}", opts.unwrap().to_string());
-        let opts_hash = opts.unwrap();
         let mut config = XmlConfig::new();
         set_arg!(config, opts_hash, root_name, String);
         set_arg!(config, opts_hash, attrkey, String);
@@ -51,18 +49,16 @@ fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
             || decl_standalone.is_some()
         { // something is specified
             // I didn't find a way to get defaults without copying them
-            let decl_version_val;
-            if decl_version.is_some() {
+            let decl_version_val = if decl_version.is_some() {
                 let decl_version_str = unsafe { decl_version.unwrap().to_s() }?.into_owned();
-                decl_version_val = Version::try_from(decl_version_str.as_str())
-                    .map_err(map_xml2json_err)?;
-            } else { decl_version_val = Version::XML10; }
-            let decl_encoding_val;
-            if decl_encoding.is_some() {
+                Version::try_from(decl_version_str.as_str())
+                    .map_err(map_xml2json_err)?
+            } else { Version::XML10 };
+            let decl_encoding_val = if decl_encoding.is_some() {
                 let decl_encoding_str = unsafe { decl_encoding.unwrap().to_s() }?.into_owned();
-                decl_encoding_val = Some(Encoding::try_from(decl_encoding_str.as_str())
-                    .map_err(map_xml2json_err)?);
-            } else { decl_encoding_val = None; }
+                Some(Encoding::try_from(decl_encoding_str.as_str())
+                    .map_err(map_xml2json_err)?)
+            } else { None };
 
             let decl = Declaration::new(
                 decl_version_val,
@@ -79,10 +75,9 @@ fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
             if indent_char.is_some()
                 || indent_size.is_some()
             {
-                let indent_char_val: u8;
-                if indent_char.is_some() {
-                    indent_char_val = u8::try_from(indent_char.unwrap()).map_err(|error| Error::new(magnus::exception::type_error(), error.to_string()))?;
-                } else { indent_char_val = b' '; }
+                let indent_char_val: u8 = if indent_char.is_some() {
+                    u8::try_from(indent_char.unwrap()).map_err(|error| Error::new(magnus::exception::type_error(), error.to_string()))?
+                } else { b' ' };
                 config.rendering(Indentation::new(
                     indent_char_val,
                     indent_size.unwrap_or(2),
@@ -97,8 +92,8 @@ fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
         xml_builder = XmlConfig::new().rendering(Indentation::default()).finalize();
     } else { xml_builder = XmlBuilder::default(); }
 
-    xml_builder.build_from_json_string(&json_s).or_else(|error| {
-        Err(map_xml2json_err(error))
+    xml_builder.build_from_json_string(&json_s).map_err(|error| {
+        map_xml2json_err(error)
     })
 }
 
@@ -112,12 +107,9 @@ fn build_pretty_json(args: &[Value]) -> Result<String, Error> {
 
 fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Error> {
     // https://docs.rs/magnus/latest/magnus/scan_args/fn.scan_args.html
-    let args = scan_args::<_, _, (), (), _, ()>(args)?;
+    let args = scan_args::<_, _, (), (), (), ()>(args)?;
     let (xml, ): (String, ) = args.required;
     let (opts, ): (Option<magnus::RHash>, ) = args.optional;
-    // let _: () = args.optional;
-    let _: () = args.keywords;
-
     // Impossible, too long
     // let kw = get_kwargs::<_, (), (
     //     Option<String>, // charkey
@@ -173,9 +165,8 @@ fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Err
     // } else { println!("none") }
 
     let json_builder: JsonBuilder;
-    if opts.is_some() { // yep, even if it's an empty hash
+    if let Some(opts_hash) = opts { // yep, even if it's an empty hash
         // println!("{}", opts.unwrap().to_string());
-        let opts_hash = opts.unwrap();
         let mut config = JsonConfig::new();
         set_arg!(config, opts_hash, charkey, String);
         set_arg!(config, opts_hash, attrkey, String);
@@ -191,8 +182,8 @@ fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Err
         json_builder = config.finalize();
 
         let indent = opts_hash.lookup::<_, Option<bool>>(magnus::Symbol::new("indent"))?;
-        if indent.is_some() {
-            build_pretty = indent.unwrap();
+        if let Some(indent_value) = indent {
+            build_pretty = indent_value;
         }
     } else { json_builder = JsonBuilder::default(); }
 
@@ -200,8 +191,8 @@ fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Err
         json_builder.build_pretty_string_from_xml(&xml)
     } else {
         json_builder.build_string_from_xml(&xml)
-    }.or_else(|error| {
-        Err(map_xml2json_err(error))
+    }.map_err(|error| {
+        map_xml2json_err(error)
     })
 }
 
