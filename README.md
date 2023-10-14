@@ -1,4 +1,6 @@
 [![Gem Version](https://badge.fury.io/rb/xml2json-rb.svg)](https://badge.fury.io/rb/xml2json-rb)
+![Gem](https://img.shields.io/gem/dt/xml2json-rb?style=plastic)
+![Gem](https://img.shields.io/gem/dtv/xml2json-rb?style=plastic)
 [![Tests](https://github.com/uvlad7/xml2json-rb/actions/workflows/main.yml/badge.svg)](https://github.com/uvlad7/xml2json-rb/actions/workflows/main.yml)
 [![Docs](https://github.com/uvlad7/xml2json-rb/actions/workflows/docs.yml/badge.svg)](https://github.com/uvlad7/xml2json-rb/actions/workflows/docs.yml)
 # Xml2Json
