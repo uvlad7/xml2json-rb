@@ -2,10 +2,6 @@ use magnus::{define_module, function, prelude::*, Error, Value};
 use magnus::scan_args::{scan_args};
 use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
 
-// fn hello(subject: String) -> String {
-//     format!("Hello from Rust, {}!", subject)
-// }
-
 #[macro_export]
 macro_rules! set_arg {
     ($config:expr, $opts_hash:expr, $arg:ident, $arg_type:ident) => (
@@ -110,63 +106,9 @@ fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Err
     let args = scan_args::<_, _, (), (), (), ()>(args)?;
     let (xml, ): (String, ) = args.required;
     let (opts, ): (Option<magnus::RHash>, ) = args.optional;
-    // Impossible, too long
-    // let kw = get_kwargs::<_, (), (
-    //     Option<String>, // charkey
-    //     Option<String>, // attrkey
-    //     Option<String>, // empty_tag
-    //     Option<bool>, // explicit_root
-    //     Option<bool>, // trim
-    //     Option<bool>, // ignore_attrs
-    //     Option<bool>, // merge_attrs
-    //     Option<bool>, // normalize_text
-    //     Option<bool>, // lowercase_tags
-    //     Option<bool>, // explicit_array
-    //     Option<bool>, // explicit_charkey
-    // ), ()>(args.keywords, &[], &[
-    //     "charkey",
-    //     "attrkey",
-    //     "empty_tag",
-    //     "explicit_root",
-    //     "trim",
-    //     "ignore_attrs",
-    //     "merge_attrs",
-    //     "normalize_text",
-    //     "lowercase_tags",
-    //     "explicit_array",
-    //     "explicit_charkey",
-    // ])?;
-    // let (
-    //     charkey,
-    //     attrkey,
-    //     empty_tag,
-    //     explicit_root,
-    //     trim,
-    //     ignore_attrs,
-    //     merge_attrs,
-    //     normalize_text,
-    //     lowercase_tags,
-    //     explicit_array,
-    //     explicit_charkey,
-    // ) = kw.optional;
-    // if charkey.is_some()
-    //     || attrkey.is_some()
-    //     || empty_tag.is_some()
-    //     || explicit_root.is_some()
-    //     || trim.is_some()
-    //     || ignore_attrs.is_some()
-    //     || merge_attrs.is_some()
-    //     || normalize_text.is_some()
-    //     || lowercase_tags.is_some()
-    //     || explicit_array.is_some()
-    //     || explicit_charkey.is_some()
-    // {
-    //     println!("any")
-    // } else { println!("none") }
 
     let json_builder: JsonBuilder;
     if let Some(opts_hash) = opts { // yep, even if it's an empty hash
-        // println!("{}", opts.unwrap().to_string());
         let mut config = JsonConfig::new();
         set_arg!(config, opts_hash, charkey, String);
         set_arg!(config, opts_hash, attrkey, String);
@@ -199,8 +141,6 @@ fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Err
 #[magnus::init]
 fn init() -> Result<(), Error> {
     let module = define_module("Xml2Json")?;
-    // module.define_singleton_method("hello", function!(hello, 1))?;
-    // It's not possible to wrap XmlBuilder
     let xml = module.define_module("Xml")?;
     let xml_version = xml.define_module("Version")?;
     xml_version.const_set("XML10", Version::XML10.to_string())?;
