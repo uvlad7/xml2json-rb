@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.files = [
     # .rb - to exclude lib/xml2json/xml2json.so
     *Dir["ext/**/*"], *Dir["lib/**/*.rb"], *Dir["sig/**/*"],
-    "Cargo.lock", "Cargo.toml"
+    "Cargo.lock", "Cargo.toml", "xml2json.json"
   ].reject { |f| File.directory?(f) }
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }

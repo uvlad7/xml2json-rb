@@ -17,3 +17,4 @@ target/
 .rspec_status
 .idea/
 .rake_tasks~
+xml2json.json
