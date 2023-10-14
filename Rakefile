@@ -27,19 +27,9 @@ end
 
 require "yard"
 
-file "xml2json.json" do
-  sh <<~SH
-    cargo +nightly rustdoc --manifest-path ext/xml2json/Cargo.toml  -- \
-      -Z unstable-options --output-format json --document-private-items && \
-    cp target/doc/xml2json.json .
-  SH
-end
-
 YARD::Rake::YardocTask.new do |t|
   # t.files = gemspec.files.select { |f| %w[.rb .json].include? File.extname(f) }
   t.options += ["--output-dir", ENV["YARD_OUTPUT_DIR"]] if ENV["YARD_OUTPUT_DIR"]
 end
-
-task yard: "xml2json.json"
 
 task default: %i[compile spec clippy rubocop yard]

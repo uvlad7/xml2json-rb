@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.files = [
     # .rb - to exclude lib/xml2json/xml2json.so
     *Dir["ext/**/*"], *Dir["lib/**/*.rb"], *Dir["sig/**/*"],
-    "Cargo.lock", "Cargo.toml", "xml2json.json"
+    "Cargo.lock", "Cargo.toml"
   ].reject { |f| File.directory?(f) }
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
@@ -49,8 +49,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rspec", "~> 3.0"
 
   spec.add_dependency "rubocop", "~> 1.21"
-
-  spec.add_dependency "yard-rustdoc"
 
   spec.add_dependency "pry"
   spec.add_dependency "pry-byebug"
