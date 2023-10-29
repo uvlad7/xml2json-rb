@@ -12,7 +12,7 @@ concurrency:
 jobs:
   ci-data:
     runs-on: ubuntu-latest
-    name: CI data
+    name: Fetch CI data
     outputs:
       result: ${{ steps.fetch.outputs.result }}
       ruby_versions: ${{ steps.ruby_versions.outputs.result }}
@@ -76,7 +76,7 @@ jobs:
   cross-gem:
     name: Compile native gem for ${{ matrix.platform }}
     runs-on: ubuntu-latest
-    needs: [ci-data, test]
+    needs: [ ci-data, test ]
     strategy:
       fail-fast: false
       matrix:
