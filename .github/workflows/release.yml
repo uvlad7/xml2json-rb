@@ -25,12 +25,18 @@ jobs:
             exclude: []
           # stable-ruby-versions: |
           #   exclude: [head]
+      - name: Fetch helper Ruby script
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ruby_versions.rb
+          sparse-checkout-cone-mode: false
       - name: Fetch supported Ruby versions
         id: ruby_versions
         shell: bash
         run: |
           : Run query
-          result="$(ruby ruby_versions.rb $GITHUB_WORKSPACE/xml2json.gemspec)"
+          result="$(ruby ./ruby_versions.rb ./xml2json.gemspec)"
           echo "result=$result" >> $GITHUB_OUTPUT
 
   cross-gem:
