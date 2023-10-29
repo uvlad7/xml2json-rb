@@ -60,6 +60,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Remove Gemfile.lock
+        run: rm Gemfile.lock
       - name: Set up Ruby & Rust
         uses: oxidize-rb/actions/setup-ruby-and-rust@v1
         with:
@@ -68,8 +70,8 @@ jobs:
           bundler-cache: true
           cargo-cache: true
           rubygems: '3.4.14'
-      - name: Run the default task
-        run: bundle exec rake spec
+      - name: Run the spec task
+        run: bundle exec rake compile && bundle exec rake spec
 
   cross-gem:
     name: Compile native gem for ${{ matrix.platform }}
