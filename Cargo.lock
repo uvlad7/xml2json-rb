@@ -28,7 +28,7 @@ dependencies = [
  "regex",
  "rustc-hash",
  "shlex",
- "syn",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -127,25 +127,24 @@ dependencies = [
 
 [[package]]
 name = "magnus"
-version = "0.6.2"
+version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4778544796676e8428e9c622460ebf284bea52d8b10db3aeb449d8b5e61b3a13"
+checksum = "5b7a37670bc433d081ef5846d5589381fabd8d3410ad3b59faa6b1b4c9c3cbce"
 dependencies = [
  "magnus-macros",
  "rb-sys",
  "rb-sys-env",
- "seq-macro",
 ]
 
 [[package]]
 name = "magnus-macros"
-version = "0.6.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5968c820e2960565f647819f5928a42d6e874551cab9d88d75e3e0660d7f71e3"
+checksum = "6cc17af1d45442c011aa579d727ec6cff8a69aea8a6bbad26736e7112d749bfb"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -224,7 +223,7 @@ dependencies = [
  "quote",
  "regex",
  "shell-words",
- "syn",
+ "syn 2.0.32",
 ]
 
 [[package]]
@@ -275,12 +274,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe232bdf6be8c8de797b22184ee71118d63780ea42ac85b61d1baa6d3b782ae9"
 
 [[package]]
-name = "seq-macro"
-version = "0.3.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3f0bf26fd526d2a95683cd0f87bf103b8539e2ca1ef48ce002d67aad59aa0b4"
-
-[[package]]
 name = "serde"
 version = "1.0.167"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -309,6 +302,17 @@ name = "shlex"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43b2853a4d09f215c24cc5489c992ce46052d359b5109343cbafbf26bc62f8a3"
+
+[[package]]
+name = "syn"
+version = "1.0.109"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "unicode-ident",
+]
 
 [[package]]
 name = "syn"
@@ -354,6 +358,7 @@ name = "xml2json"
 version = "0.3.0"
 dependencies = [
  "magnus",
+ "rb-sys",
  "xml2json-rs",
 ]
 
