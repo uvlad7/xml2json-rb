@@ -72,13 +72,70 @@ jobs:
       - name: Test cross-compiled gem
         uses: oxidize-rb/actions/test-gem-build@main
         with:
-          platform: ${{ matrix.ruby-platform }}
+          platform: ${{ matrix.platform }}
           ruby-versions: ${{ needs.ci-data.outputs.ruby_versions }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: cross-gem-${{ matrix.platform }}
+          name: cross-gems
           path: ${{ steps.cross-gem.outputs.gem-path }}
           if-no-files-found: error
           retention-days: 1
+
+  release:
+    name: Release
+    strategy:
+      matrix:
+        ruby:
+          - '2.7.8'
+        rust:
+          - "1.72.1"
+    needs: build
+    runs-on: ubuntu-latest
+    if: "startsWith(github.ref, 'refs/tags/')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Ruby & Rust
+        uses: oxidize-rb/actions/setup-ruby-and-rust@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          rustup-toolchain: ${{ matrix.rust }}
+          bundler-cache: true
+          cargo-cache: true
+          rubygems: '3.4.14'
+      - name: Ensure version matches the tag
+        run: |
+          bundle exec ruby "$GITHUB_WORKSPACE/actions/check_version.rb" "$GITHUB_REF_NAME" \
+          "$GITHUB_WORKSPACE/xml2json.gemspec" "$GITHUB_WORKSPACE/ext/xml2json/Cargo.toml"
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: cross-gems
+      - name: Package source gem
+        run: bundle exec rake build
+
+      - name: Push gem
+        working-directory: pkg/
+        env:
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_KEY }}
+        run: |
+          mkdir -p $HOME/.gem
+          touch $HOME/.gem/credentials
+          chmod 0600 $HOME/.gem/credentials
+          printf -- "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
+          ls -l
+          for i in *.gem; do
+            if [ -f "$i" ]; then
+              gem push "$i"
+            fi
+          done
+
+      - name: Create GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: false
+          generateReleaseNotes: true
+          draft: false
+          skipIfReleaseExists: true

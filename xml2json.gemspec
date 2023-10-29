@@ -58,6 +58,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rackup"
   # # Cause I want to use rack adapter with puma server
   spec.add_development_dependency "puma"
+  # # For version validation
+  spec.add_development_dependency "toml-rb"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
