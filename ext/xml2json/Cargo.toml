@@ -10,6 +10,8 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-rb-sys = { version = "*", default-features = false, features = ["ruby-static", "stable-api-compiled-fallback"] }
-magnus = { version = "0.5.5" }
+magnus = { version = "0.5.5", features = ["rb-sys-interop"] }
+rb-sys = { version = "*", default-features = false, features = [
+    "stable-api-compiled-fallback",
+] }
 xml2json-rs = "1.0.1"
