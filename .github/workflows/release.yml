@@ -15,6 +15,7 @@ jobs:
     name: CI data
     outputs:
       result: ${{ steps.fetch.outputs.result }}
+      ruby_versions: ${{ steps.ruby_versions.outputs.result }}
     steps:
       - name: Fetch CI data
         uses: oxidize-rb/actions/fetch-ci-data@v1
@@ -24,6 +25,14 @@ jobs:
             exclude: []
           # stable-ruby-versions: |
           #   exclude: [head]
+      - name: Fetch supported Ruby versions
+        id: ruby_versions
+        shell: bash
+        run: |
+          : Run query
+          result="$(ruby ruby_versions.rb $GITHUB_WORKSPACE/xml2json.gemspec)"
+          echo "result=$result" >> $GITHUB_OUTPUT
+
   cross-gem:
     name: Compile native gem for ${{ matrix.platform }}
     runs-on: ubuntu-latest
@@ -45,26 +54,18 @@ jobs:
           bundler-cache: true
           rubygems: "3.4.14"
 
-      - name: Fetch supported Ruby versions
-        id: ruby_version
-        shell: bash
-        run: |
-          : Run query
-          result="$(ruby $GITHUB_ACTION_PATH/ruby_versions.rb $GITHUB_WORKSPACE/xml2json.gemspec)"
-          echo "ruby_versions=$result" >> $GITHUB_OUTPUT
-
       - name: Cross-compile gem
         uses: oxidize-rb/actions/cross-gem@v1
         id: cross-gem
         with:
           platform: ${{ matrix.platform }}
-          ruby-versions: ${{ steps.ruby_version.outputs.ruby_versions }}
+          ruby-versions: ${{ needs.ci-data.outputs.ruby_versions }}
 
       - name: Test cross-compiled gem
         uses: oxidize-rb/actions/test-gem-build@main
         with:
           platform: ${{ matrix.ruby-platform }}
-          ruby-versions: ${{ steps.ruby_version.outputs.ruby_versions }}
+          ruby-versions: ${{ needs.ci-data.outputs.ruby_versions }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
