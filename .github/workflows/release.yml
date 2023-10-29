@@ -12,11 +12,11 @@ concurrency:
 jobs:
   ci-data:
     runs-on: ubuntu-latest
-    name: CI Data
+    name: CI data
     outputs:
       result: ${{ steps.fetch.outputs.result }}
     steps:
-      - name: Fetch CI Data
+      - name: Fetch CI data
         uses: oxidize-rb/actions/fetch-ci-data@v1
         id: fetch
         with:
@@ -35,23 +35,27 @@ jobs:
         ruby:
           - "2.7.8"
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - uses: ruby/setup-ruby@v1
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           rubygems: "3.4.14"
 
-      - uses: oxidize-rb/actions/cross-gem@v1
+      - name: Cross-compile gem
+        uses: oxidize-rb/actions/cross-gem@v1
         id: cross-gem
         with:
           platform: ${{ matrix.platform }}
           ruby-versions: ${{ join(fromJSON(needs.ci-data.outputs.result).stable-ruby-versions, ',') }}
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: cross-gem-${{ matrix.ruby-platform }}
+          name: cross-gem-${{ matrix.platform }}
           path: ${{ steps.cross-gem.outputs.gem-path }}
           if-no-files-found: error
           retention-days: 1
