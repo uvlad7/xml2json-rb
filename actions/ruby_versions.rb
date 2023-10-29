@@ -9,4 +9,4 @@ gemspec = Gem::Specification.load(ARGV[0])
 
 puts(JSON.parse(Net::HTTP.get(URI(RUBY_VERSIONS_URL))).map do |ver|
   ver["cycle"] if gemspec.required_ruby_version.satisfied_by?(Gem::Version.new(ver["cycle"]))
-end.compact.join(","))
+end.compact.to_json)
