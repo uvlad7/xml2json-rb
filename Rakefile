@@ -19,6 +19,7 @@ gemspec = Gem::Specification.load("xml2json.gemspec")
 
 RbSys::ExtensionTask.new("xml2json", gemspec) do |ext|
   ext.lib_dir = "lib/xml2json"
+  ext.cross_compile = true
 end
 
 task :clippy do

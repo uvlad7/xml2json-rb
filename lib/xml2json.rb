@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 require_relative "xml2json/version"
-require_relative "xml2json/xml2json"
+begin
+  require_relative "xml2json/#{RUBY_VERSION[/(\d+\.\d+)/, 1]}/xml2json"
+rescue LoadError
+  require_relative "xml2json/xml2json"
+end
 
 # @see https://docs.rs/xml2json-rs/1.0.1/xml2json_rs/index.html docs for the wrapped library
 module Xml2Json
