@@ -116,7 +116,7 @@ jobs:
           retention-days: 1
 
   release:
-    name: Release
+    name: Release on Ruby ${{ matrix.ruby }}
     strategy:
       matrix:
         ruby:
@@ -160,7 +160,10 @@ jobs:
           ls -l
           for i in *.gem; do
             if [ -f "$i" ]; then
-              gem push "$i"
+              if ! gem push "$i" ; then
+                gem_err=$?
+                exit $gem_err
+              fi
             fi
           done
 
