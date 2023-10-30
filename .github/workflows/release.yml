@@ -146,10 +146,9 @@ jobs:
         with:
           name: cross-gems
       - name: Package source gem
-        run: bundle exec rake build
+        run: bundle exec rake build && mv pkg/*.gem .
 
       - name: Push gem
-        working-directory: pkg/
         env:
           GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_KEY }}
         run: |
