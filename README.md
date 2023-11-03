@@ -30,9 +30,9 @@ Table of Contents
 
 ## Prerequisites
 
-This gem is written in Rust and currently doesn't have precompiled binary version, so you need
+This gem is written in Rust and provides precompiled binary versions for the most common architectures and operation systems. If there is no suitable version or if you don't want to use precompiled libraries, you need
 to [install](https://doc.rust-lang.org/cargo/getting-started/installation.html) `cargo` to compile
-it.
+it from source.
 
 > **Warning**  
 > This won't work for local development with `rake compile`
