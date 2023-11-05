@@ -101,11 +101,13 @@ jobs:
           platform: ${{ matrix.platform }}
           ruby-versions: ${{ join(fromJSON(needs.ci-data.outputs.ruby_versions), ',') }}
 
-      - name: Test cross-compiled gem
+      - name: Test cross-compiled gem build
         uses: oxidize-rb/actions/test-gem-build@main
         with:
           platform: ${{ matrix.platform }}
           ruby-versions: ${{ join(fromJSON(needs.ci-data.outputs.ruby_versions), ',') }}
+      - name: Run the spec task for cross-compiled gem
+        run: gem install ${{ steps.cross-gem.outputs.gem-path }} && bundle exec rake spec
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
