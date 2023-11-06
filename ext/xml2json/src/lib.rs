@@ -1,11 +1,22 @@
-use magnus::{define_module, function, prelude::*, Error, Value};
-use magnus::scan_args::{scan_args};
-use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
+#[cfg(mri)]
+mod mri_args;
+#[cfg(mri)]
+mod mri_errors;
 
+#[cfg(mri)]
+use crate::mri_args::{Args};
+#[cfg(mri)]
+use crate::mri_errors::{Error, type_error, runtime_error};
+
+#[cfg(mri)]
+use magnus::{Value, define_module, function, Module, Object};
+
+
+use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
 #[macro_export]
 macro_rules! set_arg {
-    ($config:expr, $opts_hash:expr, $arg:ident, $arg_type:ident) => (
-        let arg_value = $opts_hash.lookup::<_, Option<$arg_type>>(magnus::Symbol::new(stringify!($arg)))?;
+    ($config:expr, $opts:expr, $arg:ident, $arg_type:ident) => (
+        let arg_value = $opts.lookup::<$arg_type>(stringify!($arg))?;
         if let Some(value) = arg_value {
             $config.$arg(value);
         }
@@ -13,7 +24,7 @@ macro_rules! set_arg {
 }
 
 fn map_xml2json_err(error: xml2json_rs::X2JError) -> Error {
-    Error::new(magnus::exception::runtime_error(), error.details())
+    Error::new(runtime_error(), error.details())
 }
 
 fn build_xml(args: &[Value]) -> Result<String, Error> {
@@ -25,33 +36,28 @@ fn build_pretty_xml(args: &[Value]) -> Result<String, Error> {
 }
 
 fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
-    let args = scan_args::<_, _, (), (), (), ()>(args)?;
-    let (json_s, ): (String, ) = args.required;
-    let (opts, ): (Option<magnus::RHash>, ) = args.optional;
+    let parsed_args = Args::new(args)?;
 
     let mut xml_builder: XmlBuilder;
-    if let Some(opts_hash) = opts { // yep, even if it's an empty hash
-        // println!("{}", opts.unwrap().to_string());
+    if let Some(opts) = parsed_args.opts() { // yep, even if it's an empty hash
         let mut config = XmlConfig::new();
-        set_arg!(config, opts_hash, root_name, String);
-        set_arg!(config, opts_hash, attrkey, String);
-        set_arg!(config, opts_hash, charkey, String);
+        set_arg!(config, opts, root_name, String);
+        set_arg!(config, opts, attrkey, String);
+        set_arg!(config, opts, charkey, String);
 
-        let decl_version = opts_hash.lookup::<_, Option<Value>>(magnus::Symbol::new("version"))?;
-        let decl_encoding = opts_hash.lookup::<_, Option<Value>>(magnus::Symbol::new("encoding"))?;
-        let decl_standalone = opts_hash.lookup::<_, Option<bool>>(magnus::Symbol::new("standalone"))?;
+        let decl_version = opts.lookup_str("version")?;
+        let decl_encoding = opts.lookup_str("encoding")?;
+        let decl_standalone = opts.lookup::<bool>("standalone")?;
         if decl_version.is_some()
             || decl_encoding.is_some()
             || decl_standalone.is_some()
         { // something is specified
             // I didn't find a way to get defaults without copying them
-            let decl_version_val = if decl_version.is_some() {
-                let decl_version_str = unsafe { decl_version.unwrap().to_s() }?.into_owned();
+            let decl_version_val = if let Some(decl_version_str) = decl_version {
                 Version::try_from(decl_version_str.as_str())
                     .map_err(map_xml2json_err)?
             } else { Version::XML10 };
-            let decl_encoding_val = if decl_encoding.is_some() {
-                let decl_encoding_str = unsafe { decl_encoding.unwrap().to_s() }?.into_owned();
+            let decl_encoding_val = if let Some(decl_encoding_str) = decl_encoding {
                 Some(Encoding::try_from(decl_encoding_str.as_str())
                     .map_err(map_xml2json_err)?)
             } else { None };
@@ -64,15 +70,15 @@ fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
             config.decl(decl);
         }
 
-        let indent = opts_hash.lookup::<_, Option<bool>>(magnus::Symbol::new("indent"))?;
+        let indent = opts.lookup::<bool>("indent")?;
         if indent.unwrap_or(true) {
-            let indent_char = opts_hash.lookup::<_, Option<char>>(magnus::Symbol::new("indent_char"))?;
-            let indent_size = opts_hash.lookup::<_, Option<usize>>(magnus::Symbol::new("indent_size"))?;
+            let indent_char = opts.lookup::<char>("indent_char")?;
+            let indent_size = opts.lookup::<usize>("indent_size")?;
             if indent_char.is_some()
                 || indent_size.is_some()
             {
                 let indent_char_val: u8 = if indent_char.is_some() {
-                    u8::try_from(indent_char.unwrap()).map_err(|error| Error::new(magnus::exception::type_error(), error.to_string()))?
+                    u8::try_from(indent_char.unwrap()).map_err(|error| Error::new(type_error(), error.to_string()))?
                 } else { b' ' };
                 config.rendering(Indentation::new(
                     indent_char_val,
@@ -88,7 +94,7 @@ fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
         xml_builder = XmlConfig::new().rendering(Indentation::default()).finalize();
     } else { xml_builder = XmlBuilder::default(); }
 
-    xml_builder.build_from_json_string(&json_s).map_err(|error| {
+    xml_builder.build_from_json_string(&parsed_args.str_arg).map_err(|error| {
         map_xml2json_err(error)
     })
 }
@@ -102,42 +108,40 @@ fn build_pretty_json(args: &[Value]) -> Result<String, Error> {
 }
 
 fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Error> {
-    // https://docs.rs/magnus/latest/magnus/scan_args/fn.scan_args.html
-    let args = scan_args::<_, _, (), (), (), ()>(args)?;
-    let (xml, ): (String, ) = args.required;
-    let (opts, ): (Option<magnus::RHash>, ) = args.optional;
+    let parsed_args = Args::new(args)?;
 
     let json_builder: JsonBuilder;
-    if let Some(opts_hash) = opts { // yep, even if it's an empty hash
+    if let Some(opts) = parsed_args.opts() { // yep, even if it's an empty hash
         let mut config = JsonConfig::new();
-        set_arg!(config, opts_hash, charkey, String);
-        set_arg!(config, opts_hash, attrkey, String);
-        set_arg!(config, opts_hash, empty_tag, String);
-        set_arg!(config, opts_hash, explicit_root, bool);
-        set_arg!(config, opts_hash, trim, bool);
-        set_arg!(config, opts_hash, ignore_attrs, bool);
-        set_arg!(config, opts_hash, merge_attrs, bool);
-        set_arg!(config, opts_hash, normalize_text, bool);
-        set_arg!(config, opts_hash, lowercase_tags, bool);
-        set_arg!(config, opts_hash, explicit_array, bool);
-        set_arg!(config, opts_hash, explicit_charkey, bool);
+        set_arg!(config, opts, charkey, String);
+        set_arg!(config, opts, attrkey, String);
+        set_arg!(config, opts, empty_tag, String);
+        set_arg!(config, opts, explicit_root, bool);
+        set_arg!(config, opts, trim, bool);
+        set_arg!(config, opts, ignore_attrs, bool);
+        set_arg!(config, opts, merge_attrs, bool);
+        set_arg!(config, opts, normalize_text, bool);
+        set_arg!(config, opts, lowercase_tags, bool);
+        set_arg!(config, opts, explicit_array, bool);
+        set_arg!(config, opts, explicit_charkey, bool);
         json_builder = config.finalize();
 
-        let indent = opts_hash.lookup::<_, Option<bool>>(magnus::Symbol::new("indent"))?;
+        let indent = opts.lookup::<bool>("indent")?;
         if let Some(indent_value) = indent {
             build_pretty = indent_value;
         }
     } else { json_builder = JsonBuilder::default(); }
 
     if build_pretty {
-        json_builder.build_pretty_string_from_xml(&xml)
+        json_builder.build_pretty_string_from_xml(&parsed_args.str_arg)
     } else {
-        json_builder.build_string_from_xml(&xml)
+        json_builder.build_string_from_xml(&parsed_args.str_arg)
     }.map_err(|error| {
         map_xml2json_err(error)
     })
 }
 
+#[cfg(mri)]
 #[magnus::init]
 fn init() -> Result<(), Error> {
     let module = define_module("Xml2Json")?;

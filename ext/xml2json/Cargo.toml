@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["uvlad7 <uvlad7@gmail.com>"]
 license = "MIT"
 publish = false
+build = "build.rs"
 
 [lib]
 crate-type = ["cdylib"]
@@ -15,3 +16,7 @@ rb-sys = { version = "*", default-features = false, features = [
     "stable-api-compiled-fallback",
 ] }
 xml2json-rs = "1.0.1"
+
+[features]
+mri = []
+jruby = []
