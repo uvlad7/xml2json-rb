@@ -1,12 +1,8 @@
-#[cfg(mri)]
-mod mri_args;
-#[cfg(mri)]
-mod mri_errors;
+#[cfg_attr(mri, path = "mri.rs")]
+mod implementation;
 
-#[cfg(mri)]
-use crate::mri_args::{Args};
-#[cfg(mri)]
-use crate::mri_errors::{Error, type_error, runtime_error};
+use crate::implementation::args::{Args};
+use crate::implementation::errors::{Error, type_error, runtime_error};
 
 #[cfg(mri)]
 use magnus::{Value, define_module, function, Module, Object};
