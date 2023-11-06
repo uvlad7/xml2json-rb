@@ -7,6 +7,8 @@ rescue LoadError
   require_relative "xml2json/xml2json"
 end
 
+require_relative "xml2json/jruby" if RUBY_PLATFORM.include?("java")
+
 # @see https://docs.rs/xml2json-rs/1.0.1/xml2json_rs/index.html docs for the wrapped library
 module Xml2Json
   # @!parse [ruby]

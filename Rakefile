@@ -11,15 +11,25 @@ require "rubocop/rake_task"
 
 RuboCop::RakeTask.new
 
-require "rb_sys/extensiontask"
-
 task build: :compile
 
 gemspec = Gem::Specification.load("xml2json.gemspec")
 
-RbSys::ExtensionTask.new("xml2json", gemspec) do |ext|
-  ext.lib_dir = "lib/xml2json"
-  ext.cross_compile = true
+if RUBY_PLATFORM.include?("java")
+  require "rake/javaextensiontask"
+
+  Rake::JavaExtensionTask.new("xml2json", gemspec) do |ext|
+    ext.lib_dir = "lib/xml2json"
+    ext.source_version = "11" # or "8"
+    ext.target_version = "11" # or "8"
+  end
+else
+  require "rb_sys/extensiontask"
+
+  RbSys::ExtensionTask.new("xml2json", gemspec) do |ext|
+    ext.lib_dir = "lib/xml2json"
+    ext.cross_compile = true
+  end
 end
 
 task :clippy do
