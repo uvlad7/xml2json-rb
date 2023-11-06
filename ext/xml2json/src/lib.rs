@@ -1,10 +1,10 @@
-#[cfg_attr(mri, path = "mri.rs")]
+#[cfg_attr(feature = "mri", path = "mri.rs")]
 mod implementation;
 
 use crate::implementation::args::{Args};
 use crate::implementation::errors::{Error, type_error, runtime_error};
 
-#[cfg(mri)]
+#[cfg(feature = "mri")]
 use magnus::{Value, define_module, function, Module, Object};
 
 
@@ -117,27 +117,27 @@ fn build_json_impl(args: Args, mut build_pretty: bool) -> Result<String, Error> 
     })
 }
 
-#[cfg(mri)]
+#[cfg(feature = "mri")]
 fn build_xml(args: &[Value]) -> Result<String, Error> {
     build_xml_impl(Args::new(args)?, false)
 }
 
-#[cfg(mri)]
+#[cfg(feature = "mri")]
 fn build_pretty_xml(args: &[Value]) -> Result<String, Error> {
     build_xml_impl(Args::new(args)?, true)
 }
 
-#[cfg(mri)]
+#[cfg(feature = "mri")]
 fn build_json(args: &[Value]) -> Result<String, Error> {
     build_json_impl(Args::new(args)?, false)
 }
 
-#[cfg(mri)]
+#[cfg(feature = "mri")]
 fn build_pretty_json(args: &[Value]) -> Result<String, Error> {
     build_json_impl(Args::new(args)?, true)
 }
 
-#[cfg(mri)]
+#[cfg(feature = "mri")]
 #[magnus::init]
 fn init() -> Result<(), Error> {
     let module = define_module("Xml2Json")?;

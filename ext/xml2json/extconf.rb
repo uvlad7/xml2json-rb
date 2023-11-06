@@ -1,6 +1,14 @@
 # frozen_string_literal: true
 
-require "mkmf"
-require "rb_sys/mkmf"
+java_p = RUBY_PLATFORM.include?("java")
 
-create_rust_makefile("xml2json/xml2json")
+if java_p
+  require_relative "jruby_cargo_builder"
+else
+  require "mkmf"
+  require "rb_sys/mkmf"
+end
+
+create_rust_makefile("xml2json/xml2json") do |r|
+  r.features = java_p ? %w[jruby] : %w[mri]
+end

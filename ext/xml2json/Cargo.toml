@@ -5,18 +5,18 @@ edition = "2021"
 authors = ["uvlad7 <uvlad7@gmail.com>"]
 license = "MIT"
 publish = false
-build = "build.rs"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-magnus = { version = "0.5.5", features = ["rb-sys-interop"] }
+#jni-utils = { version = "0.1.1", features = ["build-java-support"] }
+magnus = { version = "0.5.5", features = ["rb-sys-interop"], optional = true }
 rb-sys = { version = "*", default-features = false, features = [
     "stable-api-compiled-fallback",
-] }
+], optional = true }
 xml2json-rs = "1.0.1"
 
 [features]
-mri = []
+mri = ["dep:magnus", "dep:rb-sys"]
 jruby = []
