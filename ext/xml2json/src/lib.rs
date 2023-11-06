@@ -27,19 +27,9 @@ fn map_xml2json_err(error: xml2json_rs::X2JError) -> Error {
     Error::new(runtime_error(), error.details())
 }
 
-fn build_xml(args: &[Value]) -> Result<String, Error> {
-    build_xml_impl(args, false)
-}
-
-fn build_pretty_xml(args: &[Value]) -> Result<String, Error> {
-    build_xml_impl(args, true)
-}
-
-fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
-    let parsed_args = Args::new(args)?;
-
+fn build_xml_impl(args: Args, build_pretty: bool) -> Result<String, Error> {
     let mut xml_builder: XmlBuilder;
-    if let Some(opts) = parsed_args.opts() { // yep, even if it's an empty hash
+    if let Some(opts) = args.opts() { // yep, even if it's an empty hash
         let mut config = XmlConfig::new();
         set_arg!(config, opts, root_name, String);
         set_arg!(config, opts, attrkey, String);
@@ -94,24 +84,14 @@ fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
         xml_builder = XmlConfig::new().rendering(Indentation::default()).finalize();
     } else { xml_builder = XmlBuilder::default(); }
 
-    xml_builder.build_from_json_string(&parsed_args.str_arg).map_err(|error| {
+    xml_builder.build_from_json_string(&args.str_arg).map_err(|error| {
         map_xml2json_err(error)
     })
 }
 
-fn build_json(args: &[Value]) -> Result<String, Error> {
-    build_json_impl(args, false)
-}
-
-fn build_pretty_json(args: &[Value]) -> Result<String, Error> {
-    build_json_impl(args, true)
-}
-
-fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Error> {
-    let parsed_args = Args::new(args)?;
-
+fn build_json_impl(args: Args, mut build_pretty: bool) -> Result<String, Error> {
     let json_builder: JsonBuilder;
-    if let Some(opts) = parsed_args.opts() { // yep, even if it's an empty hash
+    if let Some(opts) = args.opts() { // yep, even if it's an empty hash
         let mut config = JsonConfig::new();
         set_arg!(config, opts, charkey, String);
         set_arg!(config, opts, attrkey, String);
@@ -133,12 +113,32 @@ fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Err
     } else { json_builder = JsonBuilder::default(); }
 
     if build_pretty {
-        json_builder.build_pretty_string_from_xml(&parsed_args.str_arg)
+        json_builder.build_pretty_string_from_xml(&args.str_arg)
     } else {
-        json_builder.build_string_from_xml(&parsed_args.str_arg)
+        json_builder.build_string_from_xml(&args.str_arg)
     }.map_err(|error| {
         map_xml2json_err(error)
     })
+}
+
+#[cfg(mri)]
+fn build_xml(args: &[Value]) -> Result<String, Error> {
+    build_xml_impl(Args::new(args)?, false)
+}
+
+#[cfg(mri)]
+fn build_pretty_xml(args: &[Value]) -> Result<String, Error> {
+    build_xml_impl(Args::new(args)?, true)
+}
+
+#[cfg(mri)]
+fn build_json(args: &[Value]) -> Result<String, Error> {
+    build_json_impl(Args::new(args)?, false)
+}
+
+#[cfg(mri)]
+fn build_pretty_json(args: &[Value]) -> Result<String, Error> {
+    build_json_impl(Args::new(args)?, true)
 }
 
 #[cfg(mri)]
