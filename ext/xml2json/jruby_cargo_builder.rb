@@ -1,4 +1,4 @@
-# rubocop:disable
+# rubocop:disable all
 
 require "mkmf"
 require "rb_sys/mkmf"
@@ -32,4 +32,4 @@ class RbSys::CargoBuilder
   # end
 end
 
-# rubocop:enable
+# rubocop:enable all

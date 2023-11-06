@@ -1,13 +1,12 @@
 pub mod errors {
-    pub type ExceptionClass = magnus::ExceptionClass;
     pub type Error = magnus::Error;
 
-    pub fn type_error() -> ExceptionClass {
-        magnus::exception::type_error()
+    pub fn type_error(msg: String) -> Error {
+        Error::new(magnus::exception::type_error(), msg)
     }
 
-    pub fn runtime_error() -> ExceptionClass {
-        magnus::exception::runtime_error()
+    pub fn runtime_error(msg: String) -> Error {
+        Error::new(magnus::exception::runtime_error(), msg)
     }
 }
 

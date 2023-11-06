@@ -10,5 +10,5 @@ else
 end
 
 create_rust_makefile("xml2json/xml2json") do |r|
-  r.features = java_p ? %w[jruby] : %w[mri]
+  r.features = %w[jruby] if java_p
 end

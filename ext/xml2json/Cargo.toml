@@ -10,13 +10,17 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
+#jni = { version = "0.21.1", optional = true }
 #jni-utils = { version = "0.1.1", features = ["build-java-support"] }
+#jni-utils = { version = "0.1.1", optional = true }
 magnus = { version = "0.5.5", features = ["rb-sys-interop"], optional = true }
 rb-sys = { version = "*", default-features = false, features = [
     "stable-api-compiled-fallback",
 ], optional = true }
+#robusta_jni = { version = "0.2.2", optional = true }
 xml2json-rs = "1.0.1"
 
 [features]
 mri = ["dep:magnus", "dep:rb-sys"]
-jruby = []
+default = ["mri"]
+#jruby = ["dep:jni-utils", "dep:robusta_jni", "dep:jni"]

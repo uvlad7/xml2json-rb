@@ -1,4 +1,5 @@
-#[cfg_attr(feature = "mri", path = "mri.rs")]
+#[cfg_attr(feature = "mri", path = "magnus.rs")]
+// #[cfg_attr(feature = "jruby", path = "jni.rs")]
 mod implementation;
 
 use crate::implementation::args::{Args};
@@ -20,7 +21,7 @@ macro_rules! set_arg {
 }
 
 fn map_xml2json_err(error: xml2json_rs::X2JError) -> Error {
-    Error::new(runtime_error(), error.details())
+    runtime_error(error.details())
 }
 
 fn build_xml_impl(args: Args, build_pretty: bool) -> Result<String, Error> {
@@ -64,7 +65,7 @@ fn build_xml_impl(args: Args, build_pretty: bool) -> Result<String, Error> {
                 || indent_size.is_some()
             {
                 let indent_char_val: u8 = if indent_char.is_some() {
-                    u8::try_from(indent_char.unwrap()).map_err(|error| Error::new(type_error(), error.to_string()))?
+                    u8::try_from(indent_char.unwrap()).map_err(|error| type_error(error.to_string()))?
                 } else { b' ' };
                 config.rendering(Indentation::new(
                     indent_char_val,
