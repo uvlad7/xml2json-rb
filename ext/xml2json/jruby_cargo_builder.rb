@@ -3,6 +3,7 @@
 require "mkmf"
 require "rb_sys/mkmf"
 
+# @private
 class RbSys::CargoBuilder
   private
 

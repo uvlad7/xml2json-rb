@@ -1,18 +1,19 @@
-// #[cfg_attr(feature = "mri", path = "magnus.rs")]
+#[cfg_attr(feature = "mri", path = "magnus.rs")]
 // // #[cfg_attr(feature = "jruby", path = "jni.rs")]
-// mod implementation;
+mod implementation;
 
-use std::os::raw::c_void;
-use jni::{JavaVM, JNIEnv, NativeMethod};
-use jni::objects::JClass;
-use jni::strings::{JNIString};
-use jni::sys::{jdouble, jfloat, jint, JNI_ERR, JNI_VERSION_1_1, JNI_VERSION_1_4};
-// use crate::implementation::args::{Args};
-// use crate::implementation::errors::{Error, type_error, runtime_error};
+use crate::implementation::args::{Args};
+use crate::implementation::errors::{Error, type_error, runtime_error};
 
 #[cfg(feature = "mri")]
 use magnus::{Value, define_module, function, Module, Object};
 
+#[cfg(feature = "jruby")]
+use std::os::raw::c_void;
+#[cfg(feature = "jruby")]
+use jni::{JavaVM, JNIEnv, NativeMethod, objects::JClass, strings::JNIString};
+#[cfg(feature = "jruby")]
+use jni::sys::{jdouble, jfloat, jint, JNI_ERR, JNI_VERSION_1_1, JNI_VERSION_1_4};
 
 use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
 #[macro_export]
