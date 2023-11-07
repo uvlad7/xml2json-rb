@@ -16,6 +16,7 @@ task build: :compile
 gemspec = Gem::Specification.load("xml2json.gemspec")
 
 if RUBY_PLATFORM.include?("java")
+  # Run rb_sys task and mv tmp/java/xml2json/3.1.4/xml2json.jar ./xml2json_java.so
   require "rake/javaextensiontask"
 
   Rake::JavaExtensionTask.new("xml2json", gemspec) do |ext|

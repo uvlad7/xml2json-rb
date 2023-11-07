@@ -1,9 +1,14 @@
-#[cfg_attr(feature = "mri", path = "magnus.rs")]
-// #[cfg_attr(feature = "jruby", path = "jni.rs")]
-mod implementation;
+// #[cfg_attr(feature = "mri", path = "magnus.rs")]
+// // #[cfg_attr(feature = "jruby", path = "jni.rs")]
+// mod implementation;
 
-use crate::implementation::args::{Args};
-use crate::implementation::errors::{Error, type_error, runtime_error};
+use std::os::raw::c_void;
+use jni::{JavaVM, JNIEnv, NativeMethod};
+use jni::objects::JClass;
+use jni::strings::{JNIString};
+use jni::sys::{jdouble, jfloat, jint, JNI_ERR, JNI_VERSION_1_1, JNI_VERSION_1_4};
+// use crate::implementation::args::{Args};
+// use crate::implementation::errors::{Error, type_error, runtime_error};
 
 #[cfg(feature = "mri")]
 use magnus::{Value, define_module, function, Module, Object};
@@ -20,10 +25,12 @@ macro_rules! set_arg {
     );
 }
 
+#[cfg(feature = "mri")]
 fn map_xml2json_err(error: xml2json_rs::X2JError) -> Error {
     runtime_error(error.details())
 }
 
+#[cfg(feature = "mri")]
 fn build_xml_impl(args: Args, build_pretty: bool) -> Result<String, Error> {
     let mut xml_builder: XmlBuilder;
     if let Some(opts) = args.opts() { // yep, even if it's an empty hash
@@ -86,6 +93,7 @@ fn build_xml_impl(args: Args, build_pretty: bool) -> Result<String, Error> {
     })
 }
 
+#[cfg(feature = "mri")]
 fn build_json_impl(args: Args, mut build_pretty: bool) -> Result<String, Error> {
     let json_builder: JsonBuilder;
     if let Some(opts) = args.opts() { // yep, even if it's an empty hash
@@ -154,4 +162,34 @@ fn init() -> Result<(), Error> {
     json.define_singleton_method("build", function!(build_json, -1))?;
     json.define_singleton_method("build_pretty", function!(build_pretty_json, -1))?;
     Ok(())
+}
+
+#[cfg(feature = "jruby")]
+extern "C" fn jni_version(env: JNIEnv, class: JClass) -> jfloat {
+    println!("{}", 1.4f32);
+    1.4f32
+}
+
+#[cfg(feature = "jruby")]
+/// This function is executed on loading native library by JVM.
+/// It initializes the cache of method and class references.
+#[allow(non_snake_case)]
+#[no_mangle]
+pub extern "C" fn JNI_OnLoad(vm: JavaVM, _: *mut c_void) -> jint {
+    let Ok(mut env) = vm.get_env() else { return JNI_ERR; };
+    let Ok(clazz) = env.find_class(
+        "io/github/uvlad7/xml2json/Xml"
+    ) else { return JNI_ERR; };
+    // mem::transmute() - https://rust-lang.github.io/unsafe-code-guidelines/layout/function-pointers.htmlg
+    // Like function! macro
+    let func = jni_version as unsafe extern "C" fn(env: JNIEnv, class: JClass) -> jfloat;
+    // like func.as_ptr()
+    let func_ptr = func as *mut c_void;
+    let method = NativeMethod {
+        name: JNIString::from("nativeGetJniVersion"),
+        sig: JNIString::from("()F"),
+        fn_ptr: func_ptr,
+    };
+    let Ok(_) = env.register_native_methods(clazz, &[method]) else { return JNI_ERR; };
+    JNI_VERSION_1_4
 }

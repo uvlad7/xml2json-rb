@@ -12,6 +12,17 @@ public class Xml extends RubyObject {
         int puts(String s); // mapping of the puts function, in C `int puts(const char *s);`
     }
 
+    public static native float nativeGetJniVersion();
+
+    public static float getJniVersion() {
+        System.out.println(1.4f);
+        return 1.4f;
+    }
+
+    static {
+        System.load("/home/vladimir/xml2json-rb/xml2json_java.so");
+    }
+
     LibC libc = LibraryLoader.create(LibC.class).load("c");
 
     private final Ruby ruby;
