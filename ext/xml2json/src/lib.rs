@@ -1,5 +1,5 @@
 #[cfg_attr(feature = "mri", path = "magnus.rs")]
-// // #[cfg_attr(feature = "jruby", path = "jni.rs")]
+#[cfg_attr(feature = "jruby", path = "jni.rs")]
 mod implementation;
 
 use crate::implementation::args::{Args};
@@ -13,7 +13,7 @@ use std::os::raw::c_void;
 #[cfg(feature = "jruby")]
 use jni::{JavaVM, JNIEnv, NativeMethod, objects::JClass, strings::JNIString};
 #[cfg(feature = "jruby")]
-use jni::sys::{jdouble, jfloat, jint, JNI_ERR, JNI_VERSION_1_1, JNI_VERSION_1_4};
+use jni::sys::{jfloat, jint, JNI_ERR, JNI_VERSION_1_4};
 
 use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
 #[macro_export]
@@ -26,12 +26,10 @@ macro_rules! set_arg {
     );
 }
 
-#[cfg(feature = "mri")]
 fn map_xml2json_err(error: xml2json_rs::X2JError) -> Error {
     runtime_error(error.details())
 }
 
-#[cfg(feature = "mri")]
 fn build_xml_impl(args: Args, build_pretty: bool) -> Result<String, Error> {
     let mut xml_builder: XmlBuilder;
     if let Some(opts) = args.opts() { // yep, even if it's an empty hash
@@ -94,7 +92,6 @@ fn build_xml_impl(args: Args, build_pretty: bool) -> Result<String, Error> {
     })
 }
 
-#[cfg(feature = "mri")]
 fn build_json_impl(args: Args, mut build_pretty: bool) -> Result<String, Error> {
     let json_builder: JsonBuilder;
     if let Some(opts) = args.opts() { // yep, even if it's an empty hash

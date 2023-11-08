@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     xml2json-rb (0.3.1)
+      rb_sys (~> 0.9.63)
 
 GEM
   remote: https://rubygems.org/
@@ -78,7 +79,6 @@ DEPENDENCIES
   rackup
   rake (~> 13.0)
   rake-compiler
-  rb_sys (~> 0.9.63)
   rspec (~> 3.0)
   rubocop (~> 1.21)
   toml-rb

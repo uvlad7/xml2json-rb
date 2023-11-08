@@ -5,6 +5,22 @@ require "rb_sys/mkmf"
 
 # @private
 class RbSys::CargoBuilder
+  def cargo_command(dest_path, args = [])
+    cmd = []
+    cmd += ["cargo", "rustc"]
+    cmd += ["--target", target] if target
+    cmd += ["--target-dir", dest_path]
+    cmd += ["--features", features.join(",")] unless features.empty?
+    cmd += ["--lib"]
+    cmd += ["--profile", profile.to_s]
+    cmd += Gem::Command.build_args
+    # cmd += args -- rake --trace fails
+    cmd += ["--"]
+    cmd += [*rustc_args(dest_path)]
+    cmd += extra_rustc_args
+    cmd
+  end
+
   private
 
   def config(var_name)

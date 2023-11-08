@@ -9,6 +9,12 @@ else
   require "rb_sys/mkmf"
 end
 
+# DLLIB = $(TARGET).#{RbConfig::CONFIG["DLEXT"]}
+dlext = RbConfig::CONFIG["DLEXT"]
+RbConfig::CONFIG["DLEXT"] = RbConfig::MAKEFILE_CONFIG["DLEXT"]
+
 create_rust_makefile("xml2json/xml2json") do |r|
-  r.features = %w[jruby] if java_p
+  r.features = java_p ? %w[jruby] : %w[mri]
 end
+
+RbConfig::CONFIG["DLEXT"] = dlext

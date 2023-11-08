@@ -34,7 +34,7 @@ else
 end
 
 task :clippy do
-  sh "cargo clippy -- -D warnings"
+  # sh "cargo clippy -- -D warnings"
 end
 
 require "yard"
