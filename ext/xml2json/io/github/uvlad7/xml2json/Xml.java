@@ -20,7 +20,7 @@ public class Xml extends RubyObject {
     }
 
     static {
-        System.load("/home/vladimir/xml2json-rb/xml2json_java.so");
+        System.load(Xml2JsonService.libPath);
     }
 
     LibC libc = LibraryLoader.create(LibC.class).load("c");

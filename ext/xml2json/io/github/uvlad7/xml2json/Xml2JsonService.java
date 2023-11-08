@@ -5,6 +5,7 @@ import org.jruby.*;
 import org.jruby.runtime.load.BasicLibraryService;
 
 public class Xml2JsonService implements BasicLibraryService {
+    public static String libPath = null;
 
     @Override
     public boolean basicLoad(Ruby ruby) {

@@ -15,8 +15,8 @@ task build: :compile
 
 gemspec = Gem::Specification.load("xml2json.gemspec")
 
-if RUBY_PLATFORM.include?("java_skip_this_now")
-  # Run rb_sys task and mv tmp/java/xml2json/3.1.4/xml2json.jar ./xml2json_java.so
+if RUBY_PLATFORM.include?("java")
+  require_relative "rake_ext"
   require "rake/javaextensiontask"
 
   Rake::JavaExtensionTask.new("xml2json", gemspec) do |ext|
@@ -24,6 +24,17 @@ if RUBY_PLATFORM.include?("java_skip_this_now")
     ext.source_version = "11" # or "8"
     ext.target_version = "11" # or "8"
   end
+
+  Rake::Task[:compile].rename(:java_compile)
+
+  require "rb_sys/extensiontask"
+
+  RbSys::ExtensionTask.new("xml2json", gemspec) do |ext|
+    ext.lib_dir = "lib/xml2json"
+    ext.cross_compile = true
+  end
+
+  task compile: :java_compile
 else
   require "rb_sys/extensiontask"
 

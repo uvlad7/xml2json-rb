@@ -9,7 +9,7 @@ else
   require "rb_sys/mkmf"
 end
 
-# DLLIB = $(TARGET).#{RbConfig::CONFIG["DLEXT"]}
+# DLLIB = $(TARGET).#{RbConfig::CONFIG["DLEXT"]} in rb_sys/mkmf
 dlext = RbConfig::CONFIG["DLEXT"]
 RbConfig::CONFIG["DLEXT"] = RbConfig::MAKEFILE_CONFIG["DLEXT"]
 

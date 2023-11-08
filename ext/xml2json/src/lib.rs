@@ -1,8 +1,11 @@
 #[cfg_attr(feature = "mri", path = "magnus.rs")]
 #[cfg_attr(feature = "jruby", path = "jni.rs")]
+#[cfg(feature = "mri")]
 mod implementation;
 
+#[cfg(feature = "mri")]
 use crate::implementation::args::{Args};
+#[cfg(feature = "mri")]
 use crate::implementation::errors::{Error, type_error, runtime_error};
 
 #[cfg(feature = "mri")]
@@ -26,10 +29,12 @@ macro_rules! set_arg {
     );
 }
 
+#[cfg(feature = "mri")]
 fn map_xml2json_err(error: xml2json_rs::X2JError) -> Error {
     runtime_error(error.details())
 }
 
+#[cfg(feature = "mri")]
 fn build_xml_impl(args: Args, build_pretty: bool) -> Result<String, Error> {
     let mut xml_builder: XmlBuilder;
     if let Some(opts) = args.opts() { // yep, even if it's an empty hash
@@ -92,6 +97,7 @@ fn build_xml_impl(args: Args, build_pretty: bool) -> Result<String, Error> {
     })
 }
 
+#[cfg(feature = "mri")]
 fn build_json_impl(args: Args, mut build_pretty: bool) -> Result<String, Error> {
     let json_builder: JsonBuilder;
     if let Some(opts) = args.opts() { // yep, even if it's an empty hash
@@ -163,7 +169,7 @@ fn init() -> Result<(), Error> {
 }
 
 #[cfg(feature = "jruby")]
-extern "C" fn jni_version(env: JNIEnv, class: JClass) -> jfloat {
+extern "system" fn jni_version(env: JNIEnv, class: JClass) -> jfloat {
     println!("{}", 1.4f32);
     1.4f32
 }
@@ -173,14 +179,14 @@ extern "C" fn jni_version(env: JNIEnv, class: JClass) -> jfloat {
 /// It initializes the cache of method and class references.
 #[allow(non_snake_case)]
 #[no_mangle]
-pub extern "C" fn JNI_OnLoad(vm: JavaVM, _: *mut c_void) -> jint {
+pub extern "system" fn JNI_OnLoad(vm: JavaVM, _: *mut c_void) -> jint {
     let Ok(mut env) = vm.get_env() else { return JNI_ERR; };
     let Ok(clazz) = env.find_class(
         "io/github/uvlad7/xml2json/Xml"
     ) else { return JNI_ERR; };
     // mem::transmute() - https://rust-lang.github.io/unsafe-code-guidelines/layout/function-pointers.htmlg
     // Like function! macro
-    let func = jni_version as unsafe extern "C" fn(env: JNIEnv, class: JClass) -> jfloat;
+    let func = jni_version as unsafe extern "system" fn(env: JNIEnv, class: JClass) -> jfloat;
     // like func.as_ptr()
     let func_ptr = func as *mut c_void;
     let method = NativeMethod {
