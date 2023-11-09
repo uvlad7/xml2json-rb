@@ -3,6 +3,7 @@
 #[cfg(feature = "mri")]
 mod implementation;
 
+use std::fmt::Debug;
 #[cfg(feature = "mri")]
 use crate::implementation::args::{Args};
 #[cfg(feature = "mri")]
@@ -13,10 +14,13 @@ use magnus::{Value, define_module, function, Module, Object};
 
 #[cfg(feature = "jruby")]
 use std::os::raw::c_void;
+use std::ptr::null;
 #[cfg(feature = "jruby")]
-use jni::{JavaVM, JNIEnv, NativeMethod, objects::JClass, strings::JNIString};
+use robusta_jni::jni::{JavaVM, JNIEnv, NativeMethod, objects::JClass, strings::JNIString};
 #[cfg(feature = "jruby")]
-use jni::sys::{jfloat, jint, JNI_ERR, JNI_VERSION_1_4};
+use robusta_jni::jni::sys::{jfloat, jint, JNI_ERR, JNI_VERSION_1_4};
+#[cfg(feature = "jruby")]
+use robusta_jni::jni::objects::JString;
 
 use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
 #[macro_export]
@@ -175,11 +179,43 @@ extern "system" fn jni_version(env: JNIEnv, class: JClass) -> jfloat {
 }
 
 #[cfg(feature = "jruby")]
+extern "system" fn build_xml<'local>(mut env: JNIEnv<'local>,
+                                     _class: JClass<'local>,
+                                     input: JString<'local>) -> JString<'local> {
+    match env.get_string(input) {
+        Ok(java_str) => {
+            let json_s: String = java_str.into();
+            let mut xml_builder: XmlBuilder = XmlBuilder::default();
+            match xml_builder.build_from_json_string(&json_s) {
+                Ok(res) => {
+                    match env.new_string(res) {
+                        Ok(conv_res) => { return conv_res; }
+                        Err(err) => {
+                            // No need to handle err, ClassNotFoundException will be thrown implicitly
+                            let _ = env.throw_new("java/lang/RuntimeException", format!("{:?}", err));
+                        }
+                    }
+                }
+                Err(err) => {
+                    // No need to handle err, ClassNotFoundException will be thrown implicitly
+                    let _ = env.throw_new("java/lang/RuntimeException", err.details());
+                }
+            }
+        }
+        Err(err) => {
+            // No need to handle err, ClassNotFoundException will be thrown implicitly
+            let _ = env.throw_new("java/lang/RuntimeException", format!("{:?}", err));
+        }
+    }
+    JString::from(std::ptr::null_mut())
+}
+
+#[cfg(feature = "jruby")]
 /// This function is executed on loading native library by JVM.
 /// It initializes the cache of method and class references.
 #[allow(non_snake_case)]
 #[no_mangle]
-pub extern "system" fn JNI_OnLoad(vm: JavaVM, _: *mut c_void) -> jint {
+pub extern "system" fn JNI_OnLoad<'local>(vm: JavaVM, _: *mut c_void) -> jint {
     let Ok(mut env) = vm.get_env() else { return JNI_ERR; };
     let Ok(clazz) = env.find_class(
         "io/github/uvlad7/xml2json/Xml"
@@ -194,6 +230,12 @@ pub extern "system" fn JNI_OnLoad(vm: JavaVM, _: *mut c_void) -> jint {
         sig: JNIString::from("()F"),
         fn_ptr: func_ptr,
     };
-    let Ok(_) = env.register_native_methods(clazz, &[method]) else { return JNI_ERR; };
+    let build_xml_ptr = build_xml as unsafe extern "system" fn(env: JNIEnv<'local>, _class: JClass<'local>, input: JString<'local>) -> JString<'local>;
+    let build_xml_method = NativeMethod {
+        name: JNIString::from("buildImpl"),
+        sig: JNIString::from("(Ljava/lang/String;)Ljava/lang/String;"),
+        fn_ptr: build_xml_ptr as *mut c_void,
+    };
+    let Ok(_) = env.register_native_methods(clazz, &[method, build_xml_method]) else { return JNI_ERR; };
     JNI_VERSION_1_4
 }

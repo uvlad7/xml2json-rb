@@ -19,6 +19,8 @@ public class Xml extends RubyObject {
         return 1.4f;
     }
 
+    private static native String buildImpl(String input);
+
     static {
         System.load(Xml2JsonService.libPath);
     }
@@ -34,7 +36,7 @@ public class Xml extends RubyObject {
 
     @JRubyMethod
     public IRubyObject build(ThreadContext context, RubyString json_s) {
-        return RubyString.newString(ruby, json_s.asJavaString().toLowerCase());
+        return RubyString.newString(ruby, Xml.buildImpl(json_s.asJavaString()));
     }
 
     @JRubyMethod
