@@ -10,7 +10,9 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
+j4rs = { version = "0.17.1", optional = true }
 jni = { version = "0.21.1", optional = true }
+jnix = { version = "0.5.1", optional = true }
 #jni-utils = { version = "0.1.1", features = ["build-java-support"] }
 #jni-utils = { version = "0.1.1", optional = true }
 magnus = { version = "0.5.5", features = ["rb-sys-interop"], optional = true }
@@ -22,4 +24,4 @@ xml2json-rs = "1.0.1"
 
 [features]
 mri = ["dep:magnus"]
-jruby = ["dep:jni", "dep:robusta_jni"]
+jruby = ["dep:robusta_jni", "dep:jnix", "dep:j4rs"]

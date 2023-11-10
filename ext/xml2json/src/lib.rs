@@ -3,7 +3,6 @@
 #[cfg(feature = "mri")]
 mod implementation;
 
-use std::fmt::Debug;
 #[cfg(feature = "mri")]
 use crate::implementation::args::{Args};
 #[cfg(feature = "mri")]
@@ -13,12 +12,13 @@ use crate::implementation::errors::{Error, type_error, runtime_error};
 use magnus::{Value, define_module, function, Module, Object};
 
 #[cfg(feature = "jruby")]
+use {jnix::*, j4rs::*, robusta_jni::*};
+#[cfg(feature = "jruby")]
 use std::os::raw::c_void;
-use std::ptr::null;
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::{JavaVM, JNIEnv, NativeMethod, objects::JClass, strings::JNIString};
 #[cfg(feature = "jruby")]
-use robusta_jni::jni::sys::{jfloat, jint, JNI_ERR, JNI_VERSION_1_4};
+use robusta_jni::jni::sys::{jint, JNI_ERR, JNI_VERSION_1_4};
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::objects::JString;
 
@@ -173,15 +173,22 @@ fn init() -> Result<(), Error> {
 }
 
 #[cfg(feature = "jruby")]
-extern "system" fn jni_version(env: JNIEnv, class: JClass) -> jfloat {
-    println!("{}", 1.4f32);
-    1.4f32
-}
-
-#[cfg(feature = "jruby")]
 extern "system" fn build_xml<'local>(mut env: JNIEnv<'local>,
                                      _class: JClass<'local>,
                                      input: JString<'local>) -> JString<'local> {
+    let jnix_env = JnixEnv::from(env);
+    let jnix_str: String = FromJava::from_java(&jnix_env, input);
+    println!("jnix_str: {}", jnix_str);
+    // java.lang.NoClassDefFoundError: org/astonbitecode/j4rs/api/Instance
+    // let jvm: Jvm = Jvm::attach_thread().unwrap();
+    // let j4rs_str: String = jvm.to_rust(Instance::from_jobject(input.into_inner()).unwrap()).unwrap();
+    // println!("j4rs_str: {}", j4rs_str);
+    let robusta_str_res: robusta_jni::jni::errors::Result<String> = robusta_jni::convert::TryFromJavaValue::try_from(input, &env);
+    if let Ok(robusta_str_safe) = robusta_str_res {
+        println!("robusta_str_safe: {}", robusta_str_safe);
+    }
+    let robusta_str: String = robusta_jni::convert::FromJavaValue::from(input, &env);
+    println!("robusta_str: {}", robusta_str);
     match env.get_string(input) {
         Ok(java_str) => {
             let json_s: String = java_str.into();
@@ -222,20 +229,16 @@ pub extern "system" fn JNI_OnLoad<'local>(vm: JavaVM, _: *mut c_void) -> jint {
     ) else { return JNI_ERR; };
     // mem::transmute() - https://rust-lang.github.io/unsafe-code-guidelines/layout/function-pointers.htmlg
     // Like function! macro
-    let func = jni_version as unsafe extern "system" fn(env: JNIEnv, class: JClass) -> jfloat;
+    let build_xml_func = build_xml as unsafe extern "system" fn(env: JNIEnv<'local>, _class: JClass<'local>, input: JString<'local>) -> JString<'local>;
     // like func.as_ptr()
-    let func_ptr = func as *mut c_void;
-    let method = NativeMethod {
-        name: JNIString::from("nativeGetJniVersion"),
-        sig: JNIString::from("()F"),
-        fn_ptr: func_ptr,
-    };
-    let build_xml_ptr = build_xml as unsafe extern "system" fn(env: JNIEnv<'local>, _class: JClass<'local>, input: JString<'local>) -> JString<'local>;
+    let build_xml_ptr = build_xml_func as *mut c_void;
     let build_xml_method = NativeMethod {
         name: JNIString::from("buildImpl"),
-        sig: JNIString::from("(Ljava/lang/String;)Ljava/lang/String;"),
-        fn_ptr: build_xml_ptr as *mut c_void,
+        sig: JNIString::from(format!("({}){}",
+                                     <JString as robusta_jni::convert::Signature>::SIG_TYPE,
+                                     <JString as robusta_jni::convert::Signature>::SIG_TYPE)),
+        fn_ptr: build_xml_ptr,
     };
-    let Ok(_) = env.register_native_methods(clazz, &[method, build_xml_method]) else { return JNI_ERR; };
+    let Ok(_) = env.register_native_methods(clazz, &[build_xml_method]) else { return JNI_ERR; };
     JNI_VERSION_1_4
 }
