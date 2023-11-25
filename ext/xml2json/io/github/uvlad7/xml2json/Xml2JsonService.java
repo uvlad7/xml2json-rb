@@ -8,9 +8,9 @@ public class Xml2JsonService implements BasicLibraryService {
     public static String libPath = null;
 
     @Override
-    public boolean basicLoad(Ruby ruby) {
+    public boolean basicLoad(final Ruby ruby) {
         RubyModule module = ruby.defineModule("Xml2Json");
-        RubyClass xml = module.defineClassUnder("Xml", ruby.getObject(), Xml::new);
+        RubyModule xml = module.defineModuleUnder("Xml");
         xml.defineAnnotatedMethods(Xml.class);
         return true;
     }
