@@ -18,7 +18,13 @@ public class Xml {
 
     //    https://github.com/jruby/jruby/wiki/JRubyMethod_Signatures
     @JRubyMethod(name = "build", module = true)
-    public static IRubyObject build(ThreadContext context, IRubyObject self, RubyString json_s) {
+    public static IRubyObject build(ThreadContext context, IRubyObject self, RubyString json_s, IRubyObject opts) {
+//        opts.convertToHash();
         return RubyString.newString(context.getRuntime(), Xml.buildNative(json_s.asJavaString()));
+    }
+
+    @JRubyMethod(name = "build", module = true)
+    public static IRubyObject build(ThreadContext context, IRubyObject self, RubyString json_s) {
+        return Xml.build(context, self, json_s, null);
     }
 }
