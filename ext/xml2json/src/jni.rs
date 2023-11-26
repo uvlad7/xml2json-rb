@@ -73,9 +73,8 @@ use std::any::Any;
 use std::borrow::Cow;
 use std::marker::PhantomData;
 use std::panic::AssertUnwindSafe;
-use robusta_jni::convert::{JavaValue, Signature, TryFromJavaValue, TryIntoJavaValue};
+use robusta_jni::convert::{TryFromJavaValue, TryIntoJavaValue};
 use robusta_jni::jni::JNIEnv;
-use robusta_jni::jni::objects::{JObject, JString};
 use robusta_jni::jni::sys::jobject;
 
 pub enum Error {
