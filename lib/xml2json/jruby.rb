@@ -9,8 +9,9 @@ def io
 end
 
 # like require_relative
-io.github.uvlad7.xml2json.Xml2JsonService.libPath = File.join(
+lib_path = File.join(
   File.absolute_path(File.dirname(__FILE__)),
   "xml2json.#{RbConfig::MAKEFILE_CONFIG["DLEXT"]}"
 )
+io.github.uvlad7.xml2json.Xml2JsonService.systemLoad(lib_path)
 io.github.uvlad7.xml2json.Xml2JsonService.new.basicLoad(JRuby.runtime)

@@ -199,6 +199,7 @@ macro_rules! function {
             $crate::jni::Function1::new($name).call_handle_error(a, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(env: JNIEnv<'local>, _class: JClass<'local>, a: <$param as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target;
+        // like func.as_ptr()
         let anon_ptr = anon_func as *mut c_void;
 
         NativeMethod {

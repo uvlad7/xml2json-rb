@@ -15,10 +15,12 @@ use magnus::{Value, define_module, function, Module, Object};
 use std::os::raw::c_void;
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::{JavaVM, JNIEnv, NativeMethod, objects::JClass, strings::JNIString};
+use robusta_jni::jni::objects::{JObject, JValue};
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::sys::{jint, JNI_ERR, JNI_VERSION_1_4};
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::objects::JString;
+use robusta_jni::jni::sys::jboolean;
 
 mod jni;
 
@@ -174,43 +176,38 @@ fn init() -> Result<(), Error> {
 }
 
 #[cfg(feature = "jruby")]
-fn build_xml_test(json_s: String) -> Result<String, Error> {
+fn build_xml(json_s: String) -> Result<String, Error> {
     let mut xml_builder: XmlBuilder = XmlBuilder::default();
     Ok(xml_builder.build_from_json_string(&json_s).unwrap())
 }
 
 #[cfg(feature = "jruby")]
-extern "system" fn build_xml<'local>(mut env: JNIEnv<'local>,
-                                     _class: JClass<'local>,
-                                     input: <String as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
-) -> <String as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
-    let json_s_res: robusta_jni::jni::errors::Result<String> = robusta_jni::convert::TryFromJavaValue::try_from(input, &env);
-    match json_s_res {
-        Ok(json_s) => {
-            let mut xml_builder: XmlBuilder = XmlBuilder::default();
-            match xml_builder.build_from_json_string(&json_s) {
-                Ok(res) => {
-                    let res_res: robusta_jni::jni::errors::Result<<String as robusta_jni::convert::TryIntoJavaValue>::Target> = robusta_jni::convert::TryIntoJavaValue::try_into(res, &env);
-                    match res_res {
-                        Ok(conv_res) => { return conv_res; }
-                        Err(err) => {
-                            // No need to handle err, ClassNotFoundException will be thrown implicitly
-                            let _ = env.throw_new("java/lang/RuntimeException", format!("{:?}", err));
-                        }
-                    }
-                }
-                Err(err) => {
-                    // No need to handle err, ClassNotFoundException will be thrown implicitly
-                    let _ = env.throw_new("java/lang/RuntimeException", err.details());
-                }
-            }
-        }
-        Err(err) => {
-            // No need to handle err, ClassNotFoundException will be thrown implicitly
-            let _ = env.throw_new("java/lang/RuntimeException", format!("{:?}", err));
-        }
-    }
-    JString::from(std::ptr::null_mut())
+extern "system" fn basic_load<'local>(mut env: JNIEnv<'local>,
+                                      _this: JObject<'local>,
+                                      ruby: JObject<'local>,
+) -> <bool as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
+    // TODO: Raise instead
+    let fail: <bool as robusta_jni::convert::TryIntoJavaValue<'local>>::Target = robusta_jni::jni::sys::JNI_FALSE;
+    let Ok(module_name) = env.new_string("Xml2Json") else { return fail; };
+    let Ok(module_val) = env.call_method(
+        ruby, "defineModule", "(Ljava/lang/String;)Lorg/jruby/RubyModule;",
+        &[JValue::Object(JObject::from(module_name))],
+    ) else { return fail; };
+    let JValue::Object(module) = module_val else { return fail; };
+    let Ok(xml_name) = env.new_string("Xml") else { return fail; };
+    let Ok(xml_val) = env.call_method(
+        module, "defineModuleUnder", "(Ljava/lang/String;)Lorg/jruby/RubyModule;",
+        &[JValue::Object(JObject::from(xml_name))],
+    ) else { return fail; };
+    let JValue::Object(xml) = xml_val else { return fail; };
+    let Ok(clazz) = env.find_class(
+        "io/github/uvlad7/xml2json/Xml"
+    ) else { return fail; };
+    let Ok(_) = env.call_method(
+        xml, "defineAnnotatedMethods", "(Ljava/lang/Class;)V",
+        &[JValue::Object(JObject::from(clazz))],
+    ) else { return fail; };
+    robusta_jni::jni::sys::JNI_TRUE
 }
 
 #[cfg(feature = "jruby")]
@@ -220,22 +217,22 @@ extern "system" fn build_xml<'local>(mut env: JNIEnv<'local>,
 #[no_mangle]
 pub extern "system" fn JNI_OnLoad<'local>(vm: JavaVM, _: *mut c_void) -> jint {
     let Ok(mut env) = vm.get_env() else { return JNI_ERR; };
+    let Ok(serv_clazz) = env.find_class(
+        "io/github/uvlad7/xml2json/Xml2JsonService"
+    ) else { return JNI_ERR; };
+    let basic_load_func = basic_load as unsafe extern "system" fn(env: JNIEnv<'local>, _this: JObject<'local>, ruby: JObject<'local>) -> <bool as robusta_jni::convert::TryIntoJavaValue<'local>>::Target;
+    let basic_load_ptr = basic_load_func as *mut c_void;
+    let basic_load_method = NativeMethod {
+        name: JNIString::from("basicLoad"),
+        sig: JNIString::from(format!("({}){}",
+                                     "Lorg/jruby/Ruby;",
+                                     "Z")),
+        fn_ptr: basic_load_ptr,
+    };
+    let Ok(_) = env.register_native_methods(serv_clazz, &[basic_load_method]) else { return JNI_ERR; };
     let Ok(clazz) = env.find_class(
         "io/github/uvlad7/xml2json/Xml"
     ) else { return JNI_ERR; };
-    // mem::transmute() - https://rust-lang.github.io/unsafe-code-guidelines/layout/function-pointers.html
-    // Like function! macro
-    let build_xml_func = build_xml as unsafe extern "system" fn(env: JNIEnv<'local>, _class: JClass<'local>, input: JString<'local>) -> JString<'local>;
-    // like func.as_ptr()
-    let build_xml_ptr = build_xml_func as *mut c_void;
-    let build_xml_method = NativeMethod {
-        name: JNIString::from("buildNative"),
-        sig: JNIString::from(format!("({}){}",
-                                     <JString as robusta_jni::convert::Signature>::SIG_TYPE,
-                                     <JString as robusta_jni::convert::Signature>::SIG_TYPE)),
-        fn_ptr: build_xml_ptr,
-    };
-    let Ok(_) = env.register_native_methods(clazz, &[function!(build_xml_test, String, String, "buildNative")]) else { return JNI_ERR; };
-    // let Ok(_) = env.register_native_methods(clazz, &[build_xml_method]) else { return JNI_ERR; };
+    let Ok(_) = env.register_native_methods(clazz, &[function!(build_xml, String, String, "buildNative")]) else { return JNI_ERR; };
     JNI_VERSION_1_4
 }
