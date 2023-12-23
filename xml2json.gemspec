@@ -2,6 +2,8 @@
 
 require_relative "lib/xml2json/version"
 
+java_p = RUBY_PLATFORM.include?("java")
+
 Gem::Specification.new do |spec|
   spec.name = "xml2json-rb"
   spec.version = Xml2Json::VERSION
@@ -29,9 +31,12 @@ Gem::Specification.new do |spec|
   #       f.start_with?(*%w[bin/ test/ spec/ features/ .git .circleci appveyor Gemfile])
   #   end
   # end
+  ext_files = %w[rs rb toml]
+  ext_files << "java" if java_p
+  lib_files = %w[rb]
+  lib_files << "jar" if java_p
   spec.files = [
-    # .rb - to exclude lib/xml2json/xml2json.so
-    *Dir["ext/**/*"], *Dir["lib/**/*.rb"], *Dir["sig/**/*"],
+    *Dir["ext/**/*.{#{ext_files.join(",")}}"], *Dir["lib/**/*.{#{lib_files.join(",")}}"], *Dir["sig/**/*"],
     "Cargo.lock", "Cargo.toml"
   ].reject { |f| File.directory?(f) }
   spec.bindir = "exe"
