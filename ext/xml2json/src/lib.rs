@@ -233,6 +233,6 @@ pub extern "system" fn JNI_OnLoad<'local>(vm: JavaVM, _: *mut c_void) -> jint {
     let Ok(clazz) = env.find_class(
         "io/github/uvlad7/xml2json/Xml"
     ) else { return JNI_ERR; };
-    let Ok(_) = env.register_native_methods(clazz, &[function!(build_xml, String, String, "buildNative")]) else { return JNI_ERR; };
+    let Ok(_) = env.register_native_methods(clazz, &[jni_function!(build_xml, String, String, "buildNative")]) else { return JNI_ERR; };
     JNI_VERSION_1_4
 }

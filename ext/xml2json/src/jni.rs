@@ -120,7 +120,7 @@ fn raise<T: From<jobject>>(e: Error, env: &JNIEnv) -> T {
 /// Helper type for wrapping a function as a Java static method and
 /// taking 1 argument, with type conversions and error handling.
 ///
-/// See the [`function`](crate::function!) macro.
+/// See the [`function`](crate::jni_function!) macro.
 #[doc(hidden)]
 pub struct Function1<Func, A, Res, Ret> {
     func: Func,
@@ -153,7 +153,6 @@ impl<'env: 'borrow, 'borrow, Func, A, Res, Ret> Function1<Func, A, Res, Ret>
 // 'env - same as 'local
     where
         Func: Fn(A) -> Res,
-    // Func: Fn(String) -> Res,
         A: TryFromJavaValue<'env, 'borrow>,
         Res: ReturnValue<'env, Ret>,
         Ret: TryIntoJavaValue<'env>,
@@ -190,7 +189,7 @@ impl<'env: 'borrow, 'borrow, Func, A, Res, Ret> Function1<Func, A, Res, Ret>
 }
 
 #[macro_export]
-macro_rules! function {
+macro_rules! jni_function {
     ($name:expr, $param:ty, $ret:ty, $java_name:expr) => {{
         unsafe extern "system" fn anon<'local>(mut env: JNIEnv<'local>,
                                        _class: JClass<'local>,
@@ -211,6 +210,6 @@ macro_rules! function {
         }
     }};
     ($name:expr, $($param:ty)*, $ret:ty, $java_name:expr) => {
-        compile_error!("arity must be between 1..=1")
+        compile_error!("arity must be between 1..=1") // TODO: Impl more
     };
 }
