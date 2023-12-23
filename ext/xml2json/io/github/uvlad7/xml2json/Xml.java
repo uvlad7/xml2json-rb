@@ -13,17 +13,18 @@ public class Xml {
 
     private static native String buildNative(String input);
 
-    //    https://github.com/jruby/jruby/wiki/JRubyMethod_Signatures
-    @JRubyMethod(name = "build", module = true)
+    // https://github.com/jruby/jruby/wiki/JRubyMethod_Signatures
+    // https://github.com/jruby/jruby/wiki/Method-Signatures-and-Annotations-in-JRuby-extensions
+    @JRubyMethod(name = "build", meta = true)
     public static IRubyObject build(ThreadContext context, IRubyObject self, RubyString json_s, IRubyObject opts) {
-//        opts.convertToHash();
+        // opts.convertToHash();
         return RubyString.newString(context.getRuntime(), Xml.buildNative(json_s.asJavaString()));
     }
 
-    @JRubyMethod(name = "build", module = true)
+    @JRubyMethod(name = "build", meta = true)
     public static IRubyObject build(ThreadContext context, IRubyObject self, RubyString json_s) {
-//        https://github.com/jruby/jruby/issues/6203#issuecomment-624351412
-//        throw RaiseException.from(context.getRuntime(), context.getRuntime().getFatal(), "fatal");
+        // https://github.com/jruby/jruby/issues/6203#issuecomment-624351412
+        // throw RaiseException.from(context.getRuntime(), context.getRuntime().getFatal(), "fatal");
         return Xml.build(context, self, json_s, null);
     }
 }
