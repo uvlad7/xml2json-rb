@@ -32,7 +32,6 @@ Gem::Specification.new do |spec|
   #   end
   # end
   ext_files = %w[rs rb toml]
-  ext_files << "java" if java_p
   lib_files = %w[rb]
   lib_files << "jar" if java_p
   spec.files = [
