@@ -15,17 +15,23 @@ use magnus::{Value, define_module, function, Module, Object};
 use std::os::raw::c_void;
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::{JavaVM, JNIEnv, NativeMethod, objects::JClass, strings::JNIString};
-use robusta_jni::jni::objects::{JObject, JValue};
+#[cfg(feature = "jruby")]
+use robusta_jni::jni::objects::{JObject, JValue, JString};
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::sys::{jint, JNI_ERR, JNI_VERSION_1_4};
 #[cfg(feature = "jruby")]
-use robusta_jni::jni::objects::JString;
 use robusta_jni::jni::sys::jboolean;
+#[cfg(feature = "jruby")]
+use crate::jni::Error;
 
 mod jni;
 
+/// use rb_sys::set_global_tracking_allocator;
+///
+/// set_global_tracking_allocator!();
+
 use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
-use crate::jni::Error;
+
 #[macro_export]
 macro_rules! set_arg {
     ($config:expr, $opts:expr, $arg:ident, $arg_type:ident) => (
@@ -198,6 +204,7 @@ extern "system" fn basic_load<'local>(mut env: JNIEnv<'local>,
     let Ok(xml_val) = env.call_method(
         module, "defineModuleUnder", "(Ljava/lang/String;)Lorg/jruby/RubyModule;",
         &[JValue::Object(JObject::from(xml_name))],
+        // ::std::convert::TryInto::try_into(::robusta_jni::convert::JValueWrapper::from(res))
     ) else { return fail; };
     let JValue::Object(xml) = xml_val else { return fail; };
     let Ok(clazz) = env.find_class(
