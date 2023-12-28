@@ -213,3 +213,5 @@ macro_rules! jni_function {
         compile_error!("arity must be between 1..=1") // TODO: Impl more
     };
 }
+
+pub mod java;

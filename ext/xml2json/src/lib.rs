@@ -16,15 +16,15 @@ use std::os::raw::c_void;
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::{JavaVM, JNIEnv, NativeMethod, objects::JClass, strings::JNIString};
 #[cfg(feature = "jruby")]
-use robusta_jni::jni::objects::{JObject, JValue, JString};
+use robusta_jni::jni::objects::{JObject, JValue};
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::sys::{jint, JNI_ERR, JNI_VERSION_1_4};
 #[cfg(feature = "jruby")]
-use robusta_jni::jni::sys::jboolean;
-#[cfg(feature = "jruby")]
 use crate::jni::Error;
 
+#[cfg(feature = "jruby")]
 mod jni;
+
 
 /// use rb_sys::set_global_tracking_allocator;
 ///
@@ -210,10 +210,9 @@ extern "system" fn basic_load<'local>(mut env: JNIEnv<'local>,
     let Ok(clazz) = env.find_class(
         "io/github/uvlad7/xml2json/Xml"
     ) else { return fail; };
-    let Ok(_) = env.call_method(
-        xml, "defineAnnotatedMethods", "(Ljava/lang/Class;)V",
-        &[JValue::Object(JObject::from(clazz))],
-    ) else { return fail; };
+    let xml_module: jni::java::org::jruby::RubyModule = robusta_jni::convert::TryFromJavaValue::try_from(xml, &env).unwrap();
+    let Ok(_) = xml_module.defineAnnotatedMethods(&env, JObject::from(clazz)) else { return fail; };
+    // let Ok(_) = a.defineAnnotatedMethods(&env, JObject::from(xml)) else { env.exception_clear().unwrap(); let _ = env.throw_new("java/lang/RuntimeException", "lol"); return fail; };
     robusta_jni::jni::sys::JNI_TRUE
 }
 
