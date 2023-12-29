@@ -232,7 +232,7 @@ macro_rules! jni_static_function {
                                        b: <$param2 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction2, JNIEnvStaticFunction2};
-            $name.call_handle_error(a,b, &env)
+            $name.call_handle_error(a, b, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -259,7 +259,7 @@ macro_rules! jni_static_function {
                                        c: <$param3 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction3, JNIEnvStaticFunction3};
-            $name.call_handle_error(a,b,c, &env)
+            $name.call_handle_error(a, b, c, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -289,7 +289,7 @@ macro_rules! jni_static_function {
                                        d: <$param4 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction4, JNIEnvStaticFunction4};
-            $name.call_handle_error(a,b,c,d, &env)
+            $name.call_handle_error(a, b, c, d, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -322,7 +322,7 @@ macro_rules! jni_static_function {
                                        e: <$param5 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction5, JNIEnvStaticFunction5};
-            $name.call_handle_error(a,b,c,d,e, &env)
+            $name.call_handle_error(a, b, c, d, e, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -358,7 +358,7 @@ macro_rules! jni_static_function {
                                        f: <$param6 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction6, JNIEnvStaticFunction6};
-            $name.call_handle_error(a,b,c,d,e,f, &env)
+            $name.call_handle_error(a, b, c, d, e, f, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -397,7 +397,7 @@ macro_rules! jni_static_function {
                                        g: <$param7 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction7, JNIEnvStaticFunction7};
-            $name.call_handle_error(a,b,c,d,e,f,g, &env)
+            $name.call_handle_error(a, b, c, d, e, f, g, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -439,7 +439,7 @@ macro_rules! jni_static_function {
                                        h: <$param8 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction8, JNIEnvStaticFunction8};
-            $name.call_handle_error(a,b,c,d,e,f,g,h, &env)
+            $name.call_handle_error(a, b, c, d, e, f, g, h, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -484,7 +484,7 @@ macro_rules! jni_static_function {
                                        i: <$param9 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction9, JNIEnvStaticFunction9};
-            $name.call_handle_error(a,b,c,d,e,f,g,h,i, &env)
+            $name.call_handle_error(a, b, c, d, e, f, g, h, i, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -532,7 +532,7 @@ macro_rules! jni_static_function {
                                        j: <$param10 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction10, JNIEnvStaticFunction10};
-            $name.call_handle_error(a,b,c,d,e,f,g,h,i,j, &env)
+            $name.call_handle_error(a, b, c, d, e, f, g, h, i, j, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -583,7 +583,7 @@ macro_rules! jni_static_function {
                                        k: <$param11 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction11, JNIEnvStaticFunction11};
-            $name.call_handle_error(a,b,c,d,e,f,g,h,i,j,k, &env)
+            $name.call_handle_error(a, b, c, d, e, f, g, h, i, j, k, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -637,7 +637,7 @@ macro_rules! jni_static_function {
                                        l: <$param12 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction12, JNIEnvStaticFunction12};
-            $name.call_handle_error(a,b,c,d,e,f,g,h,i,j,k,l, &env)
+            $name.call_handle_error(a, b, c, d, e, f, g, h, i, j, k, l, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -694,7 +694,7 @@ macro_rules! jni_static_function {
                                        m: <$param13 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction13, JNIEnvStaticFunction13};
-            $name.call_handle_error(a,b,c,d,e,f,g,h,i,j,k,l,m, &env)
+            $name.call_handle_error(a, b, c, d, e, f, g, h, i, j, k, l, m, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -754,7 +754,7 @@ macro_rules! jni_static_function {
                                        n: <$param14 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction14, JNIEnvStaticFunction14};
-            $name.call_handle_error(a,b,c,d,e,f,g,h,i,j,k,l,m,n, &env)
+            $name.call_handle_error(a, b, c, d, e, f, g, h, i, j, k, l, m, n, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -817,7 +817,7 @@ macro_rules! jni_static_function {
                                        o: <$param15 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction15, JNIEnvStaticFunction15};
-            $name.call_handle_error(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o, &env)
+            $name.call_handle_error(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,
@@ -883,7 +883,7 @@ macro_rules! jni_static_function {
                                        p: <$param16 as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source,
         ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
             use $crate::{JNIStaticFunction16, JNIEnvStaticFunction16};
-            $name.call_handle_error(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p, &env)
+            $name.call_handle_error(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, &env)
         }
         let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                        robusta_jni::jni::objects::JClass<'local>,

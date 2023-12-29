@@ -12,7 +12,7 @@ template = ERB.new <<~ERB
   end.join("\n") %>
           ) -> <$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
               use $crate::{JNIStaticFunction<%= params.size %>, JNIEnvStaticFunction<%= params.size %>};
-              $name.call_handle_error(<%= params.join "," %>, &env)
+              $name.call_handle_error(<%= params.join ", " %>, &env)
           }
           let anon_func = anon as unsafe extern "system" fn(robusta_jni::jni::JNIEnv<'local>,
                                          robusta_jni::jni::objects::JClass<'local>,
