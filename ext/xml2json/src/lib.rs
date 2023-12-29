@@ -14,7 +14,7 @@ use magnus::{Value, define_module, function, Module, Object};
 #[cfg(feature = "jruby")]
 use std::os::raw::c_void;
 #[cfg(feature = "jruby")]
-use robusta_jni::jni::{JavaVM, JNIEnv, NativeMethod, objects::JClass, strings::JNIString};
+use robusta_jni::jni::{JavaVM, JNIEnv, NativeMethod, strings::JNIString};
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::objects::{JObject, JValue};
 #[cfg(feature = "jruby")]
@@ -239,6 +239,6 @@ pub extern "system" fn JNI_OnLoad<'local>(vm: JavaVM, _: *mut c_void) -> jint {
     let Ok(clazz) = env.find_class(
         "io/github/uvlad7/xml2json/Xml"
     ) else { return JNI_ERR; };
-    let Ok(_) = env.register_native_methods(clazz, &[jni_function!(build_xml, String, String, "buildNative")]) else { return JNI_ERR; };
+    let Ok(_) = env.register_native_methods(clazz, &[jni::jni_static_function!(build_xml, String, String, "buildNative")]) else { return JNI_ERR; };
     JNI_VERSION_1_4
 }

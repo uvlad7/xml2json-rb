@@ -1,0 +1,11 @@
+[package]
+name = "jagnus"
+version = "0.1.0"
+edition = "2021"
+authors = ["uvlad7 <uvlad7@gmail.com>"]
+license = "MIT"
+publish = false
+
+[dependencies]
+seq-macro = "0.3"
+robusta_jni = "0.2.2"
