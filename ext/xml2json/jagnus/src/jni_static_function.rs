@@ -65,7 +65,7 @@ impl<'env: 'borrow, 'borrow, Func, #(T~N,)* Res, Ret> $name<'env, 'borrow, Func,
 #[doc(hidden)]
 pub trait $env_name<'env: 'borrow, 'borrow, Func, #(T~N,)* Res, Ret>
     where
-        Self: Sized + Fn(#(T~N,)* &JNIEnv) -> Res,
+        Self: Sized + Fn(#(T~N,)* &JNIEnv<'env>) -> Res,
         #(T~N: TryFromJavaValue<'env, 'borrow>,)*
         Res: ReturnValue<'env, Ret>,
         Ret: TryIntoJavaValue<'env>,
@@ -97,7 +97,7 @@ pub trait $env_name<'env: 'borrow, 'borrow, Func, #(T~N,)* Res, Ret>
 
 impl<'env: 'borrow, 'borrow, Func, #(T~N,)* Res, Ret> $env_name<'env, 'borrow, Func, #(T~N,)* Res, Ret> for Func
     where
-        Func: Fn(#(T~N,)* &JNIEnv) -> Res,
+        Func: Fn(#(T~N,)* &JNIEnv<'env>) -> Res,
         #(T~N: TryFromJavaValue<'env, 'borrow>,)*
         Res: ReturnValue<'env, Ret>,
         Ret: TryIntoJavaValue<'env>,
