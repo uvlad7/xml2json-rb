@@ -14,23 +14,22 @@ use magnus::{Value, define_module, function, Module, Object};
 #[cfg(feature = "jruby")]
 use std::os::raw::c_void;
 #[cfg(feature = "jruby")]
-use robusta_jni::jni::{JavaVM, JNIEnv, NativeMethod, strings::JNIString};
+use robusta_jni::jni::{JavaVM, JNIEnv};
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::objects::{JObject, JValue};
-use robusta_jni::jni::objects::JClass;
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::sys::{jint, JNI_ERR, JNI_VERSION_1_4};
-use robusta_jni::jni::sys::{jboolean, jbyte, jobject};
 #[cfg(feature = "jruby")]
 use crate::jni::Error;
+#[cfg(feature = "jruby")]
+use robusta_jni::jni::errors::Result as JniResult;
 
 #[cfg(feature = "jruby")]
 mod jni;
 
 
-/// use rb_sys::set_global_tracking_allocator;
-///
-/// set_global_tracking_allocator!();
+ // use rb_sys::set_global_tracking_allocator;
+ // set_global_tracking_allocator!();
 
 use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
 
@@ -190,23 +189,18 @@ fn build_xml(json_s: String) -> Result<String, Error> {
 }
 
 #[cfg(feature = "jruby")]
-fn basic_load<'local>(
-    ruby: JObject<'local>,
-    mut env: &JNIEnv<'local>,
-) -> Result<bool, robusta_jni::jni::errors::Error> {
+fn basic_load<'local>(ruby: JObject<'local>, env: &JNIEnv<'local>) -> JniResult<bool> {
     let module_name = env.new_string("Xml2Json")?;
-    let module_val = env.call_method(
+    let module = env.call_method(
         ruby, "defineModule", "(Ljava/lang/String;)Lorg/jruby/RubyModule;",
         &[JValue::Object(JObject::from(module_name))],
-    )?;
-    let module = module_val.l()?;
+    )?.l()?;
     let xml_name = env.new_string("Xml")?;
-    let xml_val = env.call_method(
+    let xml = env.call_method(
         module, "defineModuleUnder", "(Ljava/lang/String;)Lorg/jruby/RubyModule;",
         &[JValue::Object(JObject::from(xml_name))],
         // ::std::convert::TryInto::try_into(::robusta_jni::convert::JValueWrapper::from(res))
-    )?;
-    let xml = xml_val.l()?;
+    )?.l()?;
     let clazz = env.find_class(
         "io/github/uvlad7/xml2json/Xml"
     )?;
@@ -221,7 +215,7 @@ fn basic_load<'local>(
 #[allow(non_snake_case)]
 #[no_mangle]
 pub extern "system" fn JNI_OnLoad<'local>(vm: JavaVM, _: *mut c_void) -> jint {
-    let Ok(mut env) = vm.get_env() else { return JNI_ERR; };
+    let Ok(env) = vm.get_env() else { return JNI_ERR; };
     let Ok(serv_clazz) = env.find_class(
         "io/github/uvlad7/xml2json/Xml2JsonService"
     ) else { return JNI_ERR; };

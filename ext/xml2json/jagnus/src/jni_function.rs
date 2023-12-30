@@ -3,8 +3,6 @@ use seq_macro::seq;
 use std::panic::AssertUnwindSafe;
 use robusta_jni::convert::{TryFromJavaValue, TryIntoJavaValue};
 use robusta_jni::jni::JNIEnv;
-use robusta_jni::jni::sys::jobject;
-
 use crate::ReturnValue;
 use crate::raise;
 use crate::Error;

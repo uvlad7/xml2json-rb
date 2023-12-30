@@ -3,11 +3,10 @@ mod bridge_mod {
     use robusta_jni::convert::{
         Signature, TryFromJavaValue, TryIntoJavaValue,
     };
-    use robusta_jni::jni::errors::Error as JniError;
     use robusta_jni::jni::errors::Result as JniResult;
     use robusta_jni::jni::objects::AutoLocal;
     use robusta_jni::jni::JNIEnv;
-    use robusta_jni::jni::objects::{JObject, JClass};
+    use robusta_jni::jni::objects::JObject;
 
     #[derive(Signature, TryIntoJavaValue, TryFromJavaValue)]
     #[package(org.jruby)]

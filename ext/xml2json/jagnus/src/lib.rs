@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::borrow::Cow;
 
-use robusta_jni::convert::{TryFromJavaValue, TryIntoJavaValue};
+use robusta_jni::convert::TryIntoJavaValue;
 use robusta_jni::jni::JNIEnv;
 
 /// The possible types of [`Error`].
