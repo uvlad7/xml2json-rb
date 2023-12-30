@@ -3,7 +3,6 @@ use std::borrow::Cow;
 
 use robusta_jni::convert::{TryFromJavaValue, TryIntoJavaValue};
 use robusta_jni::jni::JNIEnv;
-use robusta_jni::jni::sys::jobject;
 
 /// The possible types of [`Error`].
 #[derive(Debug)]
@@ -38,7 +37,11 @@ impl Error {
     }
 }
 
-fn raise<T>(e: Error, env: &JNIEnv) -> T {
+/// # Safety
+/// this is only safe to return to Java immediately
+/// when an exception is thrown,
+/// since the return value isn't used in that case
+unsafe fn raise<T>(e: Error, env: &JNIEnv) -> T {
     match e.0 {
         ErrorType::Exception(jni_err) => {
             // TODO: Impl ToException trait
@@ -48,9 +51,6 @@ fn raise<T>(e: Error, env: &JNIEnv) -> T {
             let _ = env.throw_new(cls, msg);
         }
     };
-    /// Safety: this is only safe to return to Java immediately
-    /// when an exception is thrown,
-    /// since the return value isn't used in that case
     unsafe { std::mem::MaybeUninit::uninit().assume_init() }
 }
 
