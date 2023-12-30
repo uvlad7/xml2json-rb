@@ -42,6 +42,8 @@ impl Error {
 /// when an exception is thrown,
 /// since the return value isn't used in that case
 unsafe fn raise<T>(e: Error, env: &JNIEnv) -> T {
+    // TODO: Shouldn't we clean already thrown exceptions with env.exception_clear?
+    // Note: As an optimisation, it's required only in JNIEnv*Method/Function
     match e.0 {
         ErrorType::Exception(jni_err) => {
             // TODO: Impl ToException trait

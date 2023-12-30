@@ -27,15 +27,22 @@ template = ERB.new <<~ERB
               name: robusta_jni::jni::strings::JNIString::from($java_name),
               sig: robusta_jni::jni::strings::JNIString::from(format!("(<%= "{}" * params.size %>){}",
   <%= params.map.with_index do |name, i|
-  "                <<$param%s as robusta_jni::convert::TryFromJavaValue<'local, 'local>>::Source as robusta_jni::convert::Signature>::SIG_TYPE," % (i + 1)
+  "                <$param%s as robusta_jni::convert::Signature>::SIG_TYPE," % (i + 1)
   end.join("\n") %>
-                  <<$ret as robusta_jni::convert::TryIntoJavaValue<'local>>::Target as robusta_jni::convert::Signature>::SIG_TYPE)),
+                  <$ret as robusta_jni::convert::Signature>::SIG_TYPE)),
               fn_ptr: anon_ptr,
           }
       }};
 ERB
 
+puts "macro_rules! jni_function {"
+
 (0..16).each do |len|
   params = range[0...len]
   puts template.result(binding)
 end
+
+puts '    ($name:expr, $($param:ty)*, $ret:ty, $java_name:expr) => {
+        compile_error!("arity must be between 0..=16")
+    };
+}'
