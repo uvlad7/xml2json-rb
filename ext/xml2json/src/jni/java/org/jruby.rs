@@ -1,6 +1,4 @@
-use robusta_jni::bridge;
-
-#[bridge]
+#[robusta_jni::bridge]
 mod ruby_module {
     use robusta_jni::convert::{
         Signature, TryFromJavaValue, TryIntoJavaValue,
@@ -24,6 +22,13 @@ mod ruby_module {
                                                     #[input_type("Ljava/lang/Class;")] cls: JObject,
         ) -> JniResult<()> {}
     }
+
+    #[derive(Signature, TryIntoJavaValue, TryFromJavaValue)]
+    #[package(org.jruby)]
+    pub struct Ruby<'env: 'borrow, 'borrow> {
+        #[instance]
+        raw: AutoLocal<'env, 'borrow>,
+    }
 }
 
-pub use ruby_module::RubyModule;
+pub use ruby_module::*;

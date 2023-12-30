@@ -24,7 +24,6 @@ pub trait $name<'env: 'borrow, 'borrow, Func, #(T~N,)* Res, Ret>
         #(T~N: TryFromJavaValue<'env, 'borrow>,)*
         Res: ReturnValue<'env, Ret>,
         Ret: TryIntoJavaValue<'env>,
-        <Ret as TryIntoJavaValue<'env>>::Target: From<jobject>,
 {
     #[inline]
     fn call_convert_value(self, #(arg~N: T~N::Source,)* env: &'borrow JNIEnv<'env>) -> Result<Ret::Target, Error> {
@@ -56,7 +55,6 @@ impl<'env: 'borrow, 'borrow, Func, #(T~N,)* Res, Ret> $name<'env, 'borrow, Func,
         #(T~N: TryFromJavaValue<'env, 'borrow>,)*
         Res: ReturnValue<'env, Ret>,
         Ret: TryIntoJavaValue<'env>,
-        <Ret as TryIntoJavaValue<'env>>::Target: From<jobject>,
 {}
 
 /// Helper trait for wrapping a function as a Java method
@@ -71,7 +69,6 @@ pub trait $env_name<'env: 'borrow, 'borrow, Func, #(T~N,)* Res, Ret>
         #(T~N: TryFromJavaValue<'env, 'borrow>,)*
         Res: ReturnValue<'env, Ret>,
         Ret: TryIntoJavaValue<'env>,
-        <Ret as TryIntoJavaValue<'env>>::Target: From<jobject>,
 {
     #[inline]
     fn call_convert_value(self, #(arg~N: T~N::Source,)* env: &'borrow JNIEnv<'env>) -> Result<Ret::Target, Error> {
@@ -104,7 +101,6 @@ impl<'env: 'borrow, 'borrow, Func, #(T~N,)* Res, Ret> $env_name<'env, 'borrow, F
         #(T~N: TryFromJavaValue<'env, 'borrow>,)*
         Res: ReturnValue<'env, Ret>,
         Ret: TryIntoJavaValue<'env>,
-        <Ret as TryIntoJavaValue<'env>>::Target: From<jobject>,
 {}
         });
     }

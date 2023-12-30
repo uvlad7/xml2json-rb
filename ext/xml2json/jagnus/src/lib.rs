@@ -38,7 +38,7 @@ impl Error {
     }
 }
 
-fn raise<T: From<jobject>>(e: Error, env: &JNIEnv) -> T {
+fn raise<T>(e: Error, env: &JNIEnv) -> T {
     match e.0 {
         ErrorType::Exception(jni_err) => {
             // TODO: Impl ToException trait
@@ -48,7 +48,10 @@ fn raise<T: From<jobject>>(e: Error, env: &JNIEnv) -> T {
             let _ = env.throw_new(cls, msg);
         }
     };
-    T::from(std::ptr::null_mut())
+    /// Safety: this is only safe to return to Java immediately
+    /// when an exception is thrown,
+    /// since the return value isn't used in that case
+    unsafe { std::mem::MaybeUninit::uninit().assume_init() }
 }
 
 pub trait ReturnValue<'env, T>
@@ -70,8 +73,19 @@ impl<'env, T> ReturnValue<'env, T> for Result<T, Error>
     }
 }
 
+impl<'env, T> ReturnValue<'env, T> for T
+    where
+        T: TryIntoJavaValue<'env>,
+{
+    fn into_return_value(self, env: &JNIEnv<'env>) -> Result<<T as TryIntoJavaValue<'env>>::Target, Error> {
+        Ok(TryIntoJavaValue::try_into(self, env)?)
+    }
+}
+
 mod jni_static_function;
+
 pub use jni_static_function::*;
 
 mod jni_function;
+
 pub use jni_function::*;
