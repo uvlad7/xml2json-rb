@@ -17,8 +17,10 @@ use std::os::raw::c_void;
 use robusta_jni::jni::{JavaVM, JNIEnv, NativeMethod, strings::JNIString};
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::objects::{JObject, JValue};
+use robusta_jni::jni::objects::JClass;
 #[cfg(feature = "jruby")]
 use robusta_jni::jni::sys::{jint, JNI_ERR, JNI_VERSION_1_4};
+use robusta_jni::jni::sys::{jboolean, jbyte, jobject};
 #[cfg(feature = "jruby")]
 use crate::jni::Error;
 
@@ -188,32 +190,29 @@ fn build_xml(json_s: String) -> Result<String, Error> {
 }
 
 #[cfg(feature = "jruby")]
-extern "system" fn basic_load<'local>(mut env: JNIEnv<'local>,
-                                      _this: JObject<'local>,
-                                      ruby: JObject<'local>,
-) -> <bool as robusta_jni::convert::TryIntoJavaValue<'local>>::Target {
-    // TODO: Raise instead
-    let fail: <bool as robusta_jni::convert::TryIntoJavaValue<'local>>::Target = robusta_jni::jni::sys::JNI_FALSE;
-    let Ok(module_name) = env.new_string("Xml2Json") else { return fail; };
-    let Ok(module_val) = env.call_method(
+fn basic_load<'local>(
+    ruby: JObject<'local>,
+    mut env: &JNIEnv<'local>,
+) -> Result<bool, robusta_jni::jni::errors::Error> {
+    let module_name = env.new_string("Xml2Json")?;
+    let module_val = env.call_method(
         ruby, "defineModule", "(Ljava/lang/String;)Lorg/jruby/RubyModule;",
         &[JValue::Object(JObject::from(module_name))],
-    ) else { return fail; };
-    let JValue::Object(module) = module_val else { return fail; };
-    let Ok(xml_name) = env.new_string("Xml") else { return fail; };
-    let Ok(xml_val) = env.call_method(
+    )?;
+    let module = module_val.l()?;
+    let xml_name = env.new_string("Xml")?;
+    let xml_val = env.call_method(
         module, "defineModuleUnder", "(Ljava/lang/String;)Lorg/jruby/RubyModule;",
         &[JValue::Object(JObject::from(xml_name))],
         // ::std::convert::TryInto::try_into(::robusta_jni::convert::JValueWrapper::from(res))
-    ) else { return fail; };
-    let JValue::Object(xml) = xml_val else { return fail; };
-    let Ok(clazz) = env.find_class(
+    )?;
+    let xml = xml_val.l()?;
+    let clazz = env.find_class(
         "io/github/uvlad7/xml2json/Xml"
-    ) else { return fail; };
-    let xml_module: jni::java::org::jruby::RubyModule = robusta_jni::convert::TryFromJavaValue::try_from(xml, &env).unwrap();
-    let Ok(_) = xml_module.defineAnnotatedMethods(&env, JObject::from(clazz)) else { return fail; };
-    // let Ok(_) = a.defineAnnotatedMethods(&env, JObject::from(xml)) else { env.exception_clear().unwrap(); let _ = env.throw_new("java/lang/RuntimeException", "lol"); return fail; };
-    robusta_jni::jni::sys::JNI_TRUE
+    )?;
+    let xml_module: jni::java::org::jruby::RubyModule = robusta_jni::convert::TryFromJavaValue::try_from(xml, &env)?;
+    let _ = xml_module.defineAnnotatedMethods(&env, JObject::from(clazz))?;
+    Ok(true)
 }
 
 #[cfg(feature = "jruby")]
@@ -226,16 +225,7 @@ pub extern "system" fn JNI_OnLoad<'local>(vm: JavaVM, _: *mut c_void) -> jint {
     let Ok(serv_clazz) = env.find_class(
         "io/github/uvlad7/xml2json/Xml2JsonService"
     ) else { return JNI_ERR; };
-    let basic_load_func = basic_load as unsafe extern "system" fn(env: JNIEnv<'local>, _this: JObject<'local>, ruby: JObject<'local>) -> <bool as robusta_jni::convert::TryIntoJavaValue<'local>>::Target;
-    let basic_load_ptr = basic_load_func as *mut c_void;
-    let basic_load_method = NativeMethod {
-        name: JNIString::from("basicLoad"),
-        sig: JNIString::from(format!("({}){}",
-                                     "Lorg/jruby/Ruby;",
-                                     "Z")),
-        fn_ptr: basic_load_ptr,
-    };
-    let Ok(_) = env.register_native_methods(serv_clazz, &[basic_load_method]) else { return JNI_ERR; };
+    let Ok(_) = env.register_native_methods(serv_clazz, &[jni::jni_function!(basic_load, jni::java::org::jruby::Ruby<'local, 'local>, bool, "basicLoad")]) else { return JNI_ERR; };
     let Ok(clazz) = env.find_class(
         "io/github/uvlad7/xml2json/Xml"
     ) else { return JNI_ERR; };

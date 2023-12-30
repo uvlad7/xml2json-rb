@@ -1,5 +1,5 @@
 #[robusta_jni::bridge]
-mod ruby_module {
+mod bridge_mod {
     use robusta_jni::convert::{
         Signature, TryFromJavaValue, TryIntoJavaValue,
     };
@@ -31,4 +31,4 @@ mod ruby_module {
     }
 }
 
-pub use ruby_module::*;
+pub use bridge_mod::*;
