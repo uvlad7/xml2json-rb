@@ -654,7 +654,6 @@ dependencies = [
  "jagnus",
  "magnus",
  "rb-sys",
- "robusta_jni",
  "xml2json-rs",
 ]
 

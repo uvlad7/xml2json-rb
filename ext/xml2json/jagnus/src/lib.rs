@@ -4,6 +4,14 @@ use std::borrow::Cow;
 use robusta_jni::convert::TryIntoJavaValue;
 use robusta_jni::jni::JNIEnv;
 
+pub use robusta_jni;
+
+mod java;
+
+pub use java::*;
+
+pub mod jruby;
+
 /// The possible types of [`Error`].
 #[derive(Debug)]
 pub enum ErrorType {
@@ -53,7 +61,7 @@ unsafe fn raise<T>(e: Error, env: &JNIEnv) -> T {
             let _ = env.throw_new(cls, msg);
         }
     };
-    unsafe { std::mem::MaybeUninit::uninit().assume_init() }
+    unsafe { std::mem::MaybeUninit::zeroed().assume_init() }
 }
 
 pub trait ReturnValue<'env, T>
@@ -83,11 +91,3 @@ impl<'env, T> ReturnValue<'env, T> for T
         Ok(TryIntoJavaValue::try_into(self, env)?)
     }
 }
-
-mod jni_static_function;
-
-pub use jni_static_function::*;
-
-mod jni_function;
-
-pub use jni_function::*;

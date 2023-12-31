@@ -19,10 +19,9 @@ magnus = { version = "0.5.5", features = ["rb-sys-interop"], optional = true }
 rb-sys = { version = "*", default-features = false, features = [
     "stable-api-compiled-fallback",
 ], optional = true }
-robusta_jni = { version = "0.2.2", optional = true }
 jagnus = { path = "jagnus", optional = true }
 xml2json-rs = "1.0.1"
 
 [features]
 mri = ["dep:magnus"]
-jruby = ["dep:robusta_jni", "dep:jagnus"]
+jruby = ["dep:jagnus"]

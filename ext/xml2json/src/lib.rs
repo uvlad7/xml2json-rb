@@ -27,9 +27,12 @@ use robusta_jni::jni::errors::Result as JniResult;
 #[cfg(feature = "jruby")]
 mod jni;
 
+#[cfg(feature = "jruby")]
+use jagnus::robusta_jni;
 
- // use rb_sys::set_global_tracking_allocator;
- // set_global_tracking_allocator!();
+
+// use rb_sys::set_global_tracking_allocator;
+// set_global_tracking_allocator!();
 
 use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
 

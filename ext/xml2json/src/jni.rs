@@ -71,4 +71,4 @@
 
 pub use jagnus::*;
 
-pub mod java;
+pub use jagnus::jruby::sys::*;
