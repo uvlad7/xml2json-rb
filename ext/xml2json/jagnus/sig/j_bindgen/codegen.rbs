@@ -1,0 +1,7 @@
+module JBindgen
+  class Codegen
+    FINAL_MOD_TEMPLATE: ERB
+    INTERMEDIATE_MOD_TEMPLATE: ERB
+    STRUCT_TEMPLATE: ERB
+  end
+end

@@ -1,0 +1,5 @@
+module JBindgen
+class JavaClass
+  @java_class: untyped
+end
+end
