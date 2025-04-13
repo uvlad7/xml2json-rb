@@ -1,5 +1,11 @@
 module JBindgen
-class JavaClass
-  @java_class: untyped
-end
+  class JavaClass
+    @java_class: Java::JavaLang::Class
+
+    def name: -> String
+
+    def package_name: -> String
+
+    def simple_name: -> String
+  end
 end

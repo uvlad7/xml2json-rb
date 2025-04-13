@@ -1,3 +1,5 @@
+pub mod runtime;
+
 mod ruby_module;
 
 pub use ruby_module::*;

@@ -4,7 +4,9 @@ mod bridge_mod {
         convert::{
             Signature, TryFromJavaValue, TryIntoJavaValue,
         },
+        jni::errors::Result as JniResult,
         jni::objects::AutoLocal,
+        jni::JNIEnv,
     };
 
     #[derive(Signature, TryIntoJavaValue, TryFromJavaValue)]
@@ -13,6 +15,13 @@ mod bridge_mod {
         #[instance]
         raw: AutoLocal<'env, 'borrow>,
     }
+
+    // impl<'env: 'borrow, 'borrow> Ruby<'env, 'borrow> {
+    //     pub extern "java" fn newArgumentError(&self,
+    //                                           env: &JNIEnv,
+    //                                           got: i32, min: i32, max: i32,
+    //     ) -> JniResult<RaiseException> {}
+    // }
 }
 
 pub use bridge_mod::*;

@@ -1,5 +1,5 @@
 module JBindgen
   class JavaMethod
-    @java_method: untyped
+    @java_method: Java::JavaLangReflect::Method
   end
 end

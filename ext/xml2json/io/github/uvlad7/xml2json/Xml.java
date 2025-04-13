@@ -3,7 +3,6 @@ package io.github.uvlad7.xml2json;
 import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.anno.JRubyModule;
-//import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
@@ -23,6 +22,7 @@ public class Xml {
 
     @JRubyMethod(name = "build", meta = true)
     public static IRubyObject build(ThreadContext context, IRubyObject self, RubyString json_s) {
+//        throw context.getRuntime().newArgumentError(new IRubyObject[]{}.length, 1, 2);
         // https://github.com/jruby/jruby/issues/6203#issuecomment-624351412
         // throw RaiseException.from(context.getRuntime(), context.getRuntime().getFatal(), "fatal");
         return Xml.build(context, self, json_s, null);
