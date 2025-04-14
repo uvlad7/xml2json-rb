@@ -14,6 +14,7 @@ RuboCop::RakeTask.new
 require "rb_sys/extensiontask"
 
 task build: :compile
+task spec: :compile
 
 gemspec = Gem::Specification.load("xml2json.gemspec")
 

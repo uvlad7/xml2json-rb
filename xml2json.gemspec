@@ -49,6 +49,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
 
   spec.add_development_dependency "rubocop", "~> 1.21"
+  # Hack for Ruby 3.4 compatibility
+  spec.add_development_dependency "base64"
 
   spec.add_development_dependency "pry"
   spec.add_development_dependency "pry-byebug"
