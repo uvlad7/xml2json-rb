@@ -1,5 +1,4 @@
-use magnus::{define_module, function, prelude::*, Error, TryConvert, Value};
-use magnus::scan_args::{scan_args};
+use magnus::{define_module, scan_args::scan_args, function, prelude::*, Error, TryConvert, Value};
 use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
 
 #[macro_export]
