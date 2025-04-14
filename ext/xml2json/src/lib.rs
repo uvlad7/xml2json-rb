@@ -4,12 +4,24 @@ use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, V
 
 #[macro_export]
 macro_rules! set_arg {
-    ($config:expr, $opts_hash:expr, $arg:ident, $arg_type:ident) => (
+    ($config:expr, $opts_hash:expr, $arg:ident, $arg_type:ident) => {{
         let arg_value: Option<Value> = $opts_hash.get(magnus::Symbol::new(stringify!($arg)));
         if let Some(value) = arg_value {
             $config.$arg(<$arg_type as TryConvert>::try_convert(value)?);
         }
-    );
+    }};
+}
+
+#[macro_export]
+macro_rules! get_arg {
+    ($opts_hash:expr, $arg:ident, $arg_type:ident) => {{
+        let arg_value: Option<Value> = $opts_hash.get(magnus::Symbol::new(stringify!($arg)));
+        if let Some(value) = arg_value {
+            Some(<$arg_type as TryConvert>::try_convert(value)?)
+        } else {
+            None
+        }
+    }};
 }
 
 fn map_xml2json_err(error: xml2json_rs::X2JError) -> Error {
@@ -37,46 +49,49 @@ fn build_xml_impl(args: &[Value], build_pretty: bool) -> Result<String, Error> {
         set_arg!(config, opts_hash, attrkey, String);
         set_arg!(config, opts_hash, charkey, String);
 
-        let decl_version = opts_hash.lookup::<_, Option<Value>>(magnus::Symbol::new("version"))?;
-        let decl_encoding = opts_hash.lookup::<_, Option<Value>>(magnus::Symbol::new("encoding"))?;
-        let decl_standalone = opts_hash.lookup::<_, Option<bool>>(magnus::Symbol::new("standalone"))?;
+        let decl_version = opts_hash.get(magnus::Symbol::new("version"));
+        let decl_encoding = opts_hash.get(magnus::Symbol::new("encoding"));
+        let decl_standalone = opts_hash.get(magnus::Symbol::new("standalone"));
         if decl_version.is_some()
             || decl_encoding.is_some()
             || decl_standalone.is_some()
         { // something is specified
             // I didn't find a way to get defaults without copying them
-            let decl_version_val = if decl_version.is_some() {
-                let decl_version_str = unsafe { decl_version.unwrap().to_s() }?.into_owned();
+            let decl_version_val = if let Some(decl_version_opt) = decl_version {
+                let decl_version_str = unsafe { decl_version_opt.to_s() }?.into_owned();
                 Version::try_from(decl_version_str.as_str())
                     .map_err(map_xml2json_err)?
             } else { Version::XML10 };
-            let decl_encoding_val = if decl_encoding.is_some() {
-                let decl_encoding_str = unsafe { decl_encoding.unwrap().to_s() }?.into_owned();
+            let decl_encoding_val = if let Some(decl_encoding_opt) = decl_encoding {
+                let decl_encoding_str = unsafe { decl_encoding_opt.to_s() }?.into_owned();
                 Some(Encoding::try_from(decl_encoding_str.as_str())
                     .map_err(map_xml2json_err)?)
+            } else { None };
+            let decl_standalone_val = if let Some(decl_standalone_opt) = decl_standalone {
+                Some(TryConvert::try_convert(decl_standalone_opt)?)
             } else { None };
 
             let decl = Declaration::new(
                 decl_version_val,
                 decl_encoding_val,
-                decl_standalone,
+                decl_standalone_val,
             );
             config.decl(decl);
         }
 
-        let indent = opts_hash.lookup::<_, Option<bool>>(magnus::Symbol::new("indent"))?;
+        let indent = get_arg!(opts_hash, indent, bool);
         if indent.unwrap_or(true) {
-            let indent_char = opts_hash.lookup::<_, Option<char>>(magnus::Symbol::new("indent_char"))?;
-            let indent_size = opts_hash.lookup::<_, Option<usize>>(magnus::Symbol::new("indent_size"))?;
-            if indent_char.is_some()
-                || indent_size.is_some()
+            let indent_char_opt = get_arg!(opts_hash, indent_char, char);
+            let indent_size_opt = get_arg!(opts_hash, indent_size, usize);
+            if indent_char_opt.is_some()
+                || indent_size_opt.is_some()
             {
-                let indent_char_val: u8 = if indent_char.is_some() {
-                    u8::try_from(indent_char.unwrap()).map_err(|error| Error::new(magnus::exception::type_error(), error.to_string()))?
+                let indent_char_val: u8 = if let Some(indent_char) = indent_char_opt {
+                    u8::try_from(indent_char).map_err(|error| Error::new(magnus::exception::type_error(), error.to_string()))?
                 } else { b' ' };
                 config.rendering(Indentation::new(
                     indent_char_val,
-                    indent_size.unwrap_or(2),
+                    indent_size_opt.unwrap_or(2),
                 ));
             } else if indent.unwrap_or(build_pretty) {
                 // because Indentation::default is not the same as not calling config.rendering at all;
@@ -123,9 +138,8 @@ fn build_json_impl(args: &[Value], mut build_pretty: bool) -> Result<String, Err
         set_arg!(config, opts_hash, explicit_charkey, bool);
         json_builder = config.finalize();
 
-        let indent = opts_hash.lookup::<_, Option<bool>>(magnus::Symbol::new("indent"))?;
-        if let Some(indent_value) = indent {
-            build_pretty = indent_value;
+        if let Some(indent) = get_arg!(opts_hash, indent, bool) {
+            build_pretty = indent;
         }
     } else { json_builder = JsonBuilder::default(); }
 

@@ -109,6 +109,7 @@ RSpec.describe Xml2Json::Json do
         explicit_array: nil
       )
     ).to eq '{"book":{"title":"The Name of the Wind","author":"Patrick Rothfuss","year":"2007"}}'
+    expect(Xml2Json::Xml.build_pretty('{"a": 42}', indent: nil)).to eq('<?xml version="1.0"?><a>42</a>')
   end
 end
 # rubocop:enable Metrics/BlockLength
