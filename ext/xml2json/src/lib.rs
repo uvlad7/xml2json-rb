@@ -1,13 +1,13 @@
-use magnus::{define_module, function, prelude::*, Error, Value};
+use magnus::{define_module, function, prelude::*, Error, TryConvert, Value};
 use magnus::scan_args::{scan_args};
 use xml2json_rs::{XmlBuilder, JsonBuilder, JsonConfig, XmlConfig, Declaration, Version, Encoding, Indentation};
 
 #[macro_export]
 macro_rules! set_arg {
     ($config:expr, $opts_hash:expr, $arg:ident, $arg_type:ident) => (
-        let arg_value = $opts_hash.lookup::<_, Option<$arg_type>>(magnus::Symbol::new(stringify!($arg)))?;
+        let arg_value: Option<Value> = $opts_hash.get(magnus::Symbol::new(stringify!($arg)));
         if let Some(value) = arg_value {
-            $config.$arg(value);
+            $config.$arg(<$arg_type as TryConvert>::try_convert(value)?);
         }
     );
 }
