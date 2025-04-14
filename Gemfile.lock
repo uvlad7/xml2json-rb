@@ -37,7 +37,9 @@ GEM
     rake (13.0.6)
     rake-compiler (1.2.3)
       rake
-    rb_sys (0.9.79)
+    rake-compiler-dock (1.9.1)
+    rb_sys (0.9.111)
+      rake-compiler-dock (= 1.9.1)
     regexp_parser (2.8.1)
     rexml (3.2.5)
     rspec (3.12.0)
