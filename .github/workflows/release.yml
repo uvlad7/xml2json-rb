@@ -108,9 +108,9 @@ jobs:
           ruby-versions: ${{ join(fromJSON(needs.ci-data.outputs.ruby_versions), ',') }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: cross-gems
+          name: cross-gems-${{ strategy.job-index }}
           path: ${{ steps.cross-gem.outputs.gem-path }}
           if-no-files-found: error
           retention-days: 1
@@ -142,9 +142,10 @@ jobs:
           bundle exec ruby "$GITHUB_WORKSPACE/actions/check_version.rb" "$GITHUB_REF_NAME" \
           "$GITHUB_WORKSPACE/xml2json.gemspec" "$GITHUB_WORKSPACE/ext/xml2json/Cargo.toml"
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: cross-gems
+          pattern: cross-gems-*
+          merge-multiple: true
       - name: Package source gem
         run: bundle exec rake build
 
