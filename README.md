@@ -77,7 +77,7 @@ See [specs](spec/xml2json_spec.rb) for more examples.
 
 YARD docs are available on [rubydoc.info](https://rubydoc.info/gems/xml2json-rb/) for the latest
 released version and on [pages.github.com](https://uvlad7.github.io/xml2json-rb/) for the most
-recent changes in `master`
+recent changes in the `main` branch.
 
 ## Development
 
