@@ -35,3 +35,5 @@ YARD::Rake::YardocTask.new do |t|
 end
 
 task default: %i[compile spec clippy rubocop yard]
+
+# todo: add markdown-toc task
